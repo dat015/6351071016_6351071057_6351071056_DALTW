@@ -6,6 +6,7 @@ using TechShop.Data;
 using Microsoft.EntityFrameworkCore;
 using TechShop.Helper;
 using Microsoft.AspNetCore.Authorization;
+using TechShop.DTO;
 
 namespace TechShop.Controllers
 {

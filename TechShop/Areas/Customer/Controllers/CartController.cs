@@ -92,6 +92,7 @@ namespace TechShop.Areas.Customer.Controllers
 
                 var specsFromDb = await _db.specs
                                            .Include(s => s.Product)
+                                           .Include(s => s.Config)
                                            .Where(s => specIds.Contains(s.Id))
                                            .ToListAsync();
 
@@ -125,6 +126,8 @@ namespace TechShop.Areas.Customer.Controllers
         public async Task<IActionResult> Index()
         {
 
+            bool transferSuccess = await TransferSessionToDatabase();
+            if (!transferSuccess) return View("Error");
             var cartVM = await GetCartVMAsync();
             return View(cartVM);
         }
@@ -213,6 +216,128 @@ namespace TechShop.Areas.Customer.Controllers
 
             return RedirectToAction("Index");
         }
+        public async Task<bool> TransferSessionToDatabase()
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Lấy UserId từ Claim
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return true; 
+                }
+
+                // Lấy giỏ hàng từ Session
+                string cartSessionData = HttpContext.Session.GetString("Cart");
+                List<CartDetail> cartSession = string.IsNullOrEmpty(cartSessionData)
+                    ? new List<CartDetail>()
+                    : JsonConvert.DeserializeObject<List<CartDetail>>(cartSessionData);
+
+                if (cartSession == null || !cartSession.Any())
+                {
+                    return true; // Không có sản phẩm nào trong session, coi như thành công
+                }
+
+                // Kiểm tra và tạo giỏ hàng cho người dùng nếu chưa có
+                var shoppingCart = await _db.ShoppingCarts
+                    .FirstOrDefaultAsync(cart => cart.UserId == int.Parse(userId));
+
+                if (shoppingCart == null)
+                {
+                    shoppingCart = new ShoppingCart
+                    {
+                        UserId = int.Parse(userId)
+                    };
+                    _db.ShoppingCarts.Add(shoppingCart);
+                    await _db.SaveChangesAsync();
+                }
+
+                // Duyệt qua từng sản phẩm trong Session và chuyển vào Database
+                foreach (var sessionItem in cartSession)
+                {
+                    var existingCartDetail = await _db.CartDetails
+                        .FirstOrDefaultAsync(cd => cd.specId == sessionItem.specId && cd.CartId == shoppingCart.Id);
+
+                    if (existingCartDetail != null)
+                    {
+                        // Nếu sản phẩm đã tồn tại, cộng dồn số lượng
+                        existingCartDetail.quantity += sessionItem.quantity;
+                    }
+                    else
+                    {
+                        // Nếu sản phẩm chưa tồn tại, thêm mới vào CartDetails
+                        var newCartDetail = new CartDetail
+                        {
+                            CartId = shoppingCart.Id,
+                            specId = sessionItem.specId,
+                            price = sessionItem.price,
+                            quantity = sessionItem.quantity
+                        };
+                        _db.CartDetails.Add(newCartDetail);
+                    }
+                }
+
+                // Lưu thay đổi vào Database và xóa giỏ hàng trong Session
+                await _db.SaveChangesAsync();
+                HttpContext.Session.Remove("Cart");
+
+                return true; // Chuyển giỏ hàng thành công
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi nếu cần thiết
+                Console.WriteLine($"Error: {ex.Message}");
+                return false; // Trả về false nếu xảy ra lỗi
+            }
+        }
+
+        [HttpPost]
+        public IActionResult DeleteItem(int id, int cartId)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userId != null) // Đã đăng nhập
+                {
+
+                    // Xóa sản phẩm trong Database
+                    var cartItem = _db.CartDetails
+                        .FirstOrDefault(c => c.specId == id && c.CartId == cartId);
+
+                    if (cartItem != null)
+                    {
+                        _db.CartDetails.Remove(cartItem);
+                        _db.SaveChanges();
+                        return Json(new { success = true });
+                    }
+                }
+                else // Chưa đăng nhập -> Xử lý Session
+                {
+                    string cartSessionData = HttpContext.Session.GetString("Cart");
+                    if (!string.IsNullOrEmpty(cartSessionData))
+                    {
+                        var cartSession = JsonConvert.DeserializeObject<List<CartDetail>>(cartSessionData);
+                        var itemToRemove = cartSession.FirstOrDefault(c => c.specId == id);
+
+                        if (itemToRemove != null)
+                        {
+                            cartSession.Remove(itemToRemove);
+                            HttpContext.Session.SetString("Cart", JsonConvert.SerializeObject(cartSession));
+                            return Json(new { success = true });
+                        }
+                    }
+                }
+                return Json(new { success = false });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return Json(new { success = false });
+            }
+        }
+
+
+
 
         //[HttpPost]
         //public async Task<IActionResult> DeleteItem(int id)

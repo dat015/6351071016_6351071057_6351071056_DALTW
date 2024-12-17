@@ -95,7 +95,6 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="NewFolder\" />
     <Folder Include="wwwroot\media\products\" />
   </ItemGroup>
 

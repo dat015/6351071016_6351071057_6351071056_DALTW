@@ -1,6 +1,6 @@
 ﻿using TechShop.Models;
 
-namespace TechShop
+namespace TechShop.DTO
 {
     public class ConfigDto
     {

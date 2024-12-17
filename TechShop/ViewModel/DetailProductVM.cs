@@ -1,4 +1,5 @@
-﻿using TechShop.Models;
+﻿using TechShop.DTO;
+using TechShop.Models;
 
 namespace TechShop.ViewModel
 {

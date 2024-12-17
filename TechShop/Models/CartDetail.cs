@@ -11,10 +11,10 @@ namespace TechShop.Models
 
         public int quantity { get; set; }
         [Required]
-        [Column(TypeName = "decimal(18,2)")]
 
         public int specId { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
 
         public decimal price { get; set; }
         [ForeignKey("CartId")]
