@@ -1,0 +1,172 @@
+﻿@model TechShop.ViewModel.CartVM
+<div class="modal fade" id="staticBackdrop1" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+    <div class="modal-dialog d-flex justify-content-center">
+        <div class="modal-content w-75">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel1">Thông tin giao hàng</h5>
+            </div>
+            <div class="modal-body p-4">
+                <form method="post" id="formInfo" action="@Url.Action("SubmitInformation", "Cart", new { Area = "Customer" })" class="p-3">
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group mb-3">
+                                <label for="proviceSelect" class="form-label">Tỉnh/Thành phố*</label>
+                                <select id="proviceSelect" class="form-control" name="proviceId">
+                                    <option selected>Chọn Tỉnh/Thành phố</option>
+                                    @foreach (var item in Model.listProvices)
+                                    {
+                                        <option name="proviceName" value="@item.code">@item.name</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="districtSelect" class="form-label">Quận/Huyện*</label>
+                                <select id="districtSelect" class="form-control" name="districtId" disabled>
+                                    <option selected>Chọn Quận/Huyện</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="wardSelect" class="form-label">Phường/Xã*</label>
+                                <select id="wardSelect" class="form-control" name="wardId" disabled>
+                                    <option selected>Chọn Phường/Xã</option>
+                                    <!-- Các tùy chọn phường/xã sẽ được tải động từ server khi chọn quận -->
+                                </select>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="houseSelect" class="form-label">Địa chỉ nhà*</label>
+                                <input id="houseSelect" type="text" class="form-control" name="houseAddress" placeholder="Địa chỉ nhà" aria-describedby="addon-wrapping">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group mb-3">
+                                <label for="nameSelect" class="form-label">Họ và Tên*</label>
+                                <input id="nameSelect" type="text" class="form-control" name="name" placeholder="Họ và Tên" aria-describedby="addon-wrapping">
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="phoneSelect" class="form-label">Số Điện Thoại*</label>
+                                <input id="phoneSelect" type="text" class="form-control" name="phone" placeholder="Số Điện Thoại" aria-describedby="addon-wrapping">
+                            </div>
+                        </div>
+                    </div>
+
+                   
+
+                    <button type="submit" id="submitInfo"class="btn btn-primary w-100">Đồng ý</button>
+                </form>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var districtSelect = document.getElementById("districtSelect");
+        var proviceSelect = document.getElementById("proviceSelect");
+        var wardSelect = document.getElementById("wardSelect");
+
+
+
+        proviceSelect.addEventListener('change', function () {
+            console.log("Provice select changed"); // Kiểm tra xem sự kiện có được kích hoạt không
+            var provinceId = this.value;
+
+            if (provinceId) {
+                console.log(provinceId);
+                $.ajax({
+                    url: '@Url.Action("GetDistrictsByProvice", "Cart", new { Area = "Customer" })',
+                    type: "GET",
+                    data: { provinceId: provinceId },
+                    success: function (data) {
+                        console.log("Ajax request succeeded"); // Xác nhận yêu cầu Ajax thành công
+                        districtSelect.innerHTML = "<option selected>Quận/Huyện</option>";
+                        $.each(data, function (i, district) {
+                            var option = document.createElement('option');
+
+                            option.text = district.name;
+                            option.value = district.code;
+
+
+                            option.setAttribute('name', 'districtName');
+                            districtSelect.append(option);
+                        });
+                        districtSelect.disabled = false;
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Ajax request failed: ", status, error); // Xử lý lỗi
+                    }
+                });
+                wardSelect.disabled = true;
+
+            }
+        });
+
+        districtSelect.addEventListener('change', function () {
+            var districtId = this.value;
+            console.log(districtId);
+            if (districtId) {
+                $.ajax({
+                    url: '@Url.Action("GetWardsByDistrict", "Cart", new { Area = "Customer" })',
+                    type: 'GET',
+                    data: { districtId: districtId },
+                    success: function (data) {
+                        wardSelect.innerHTML = '<option selected>Phường/Xã</option>';
+                        $.each(data, function (i, ward) {
+                            var option = document.createElement('option');
+                            option.text = ward.name;
+                            option.value = ward.code;
+                            option.setAttribute('name', 'wardName');
+                            wardSelect.append(option);
+                        });
+                        wardSelect.disabled = false;
+                    }
+                });
+            } else {
+                wardSelect.disabled = true;
+            }
+        });
+    });
+</script>
+<script>
+    var info = document.getElementById("submitInfo");
+    info.onclick = function () {
+        e.preventDefault();
+        var districtSelect = document.getElementById("districtSelect").value;
+        var proviceSelect = document.getElementById("proviceSelect").value;
+        var wardSelect = document.getElementById("wardSelect").value;
+        var nameSelect = document.getElementById("nameSelect").value;
+        var houseSelect = document.getElementById("houseSelect").value;
+        var phoneSelect = document.getElementById("phoneSelect").value;
+        if (districtSelect && proviceSelect && wardSelect && nameSelect && houseSelect && phoneSelect) {
+
+            $.ajax({
+                url: '@Url.Action("SubmitInformation", "Cart", new { Area = "Customer" })',
+                type: 'POST',
+                
+                data: JSON.stringify({
+                    district: districtSelect,
+                    province: proviceSelect,
+                    ward: wardSelect,
+                    name: nameSelect,
+                    house: houseSelect,
+                    phone: phoneSelect
+                }),
+                success: function (response) {
+                    if (response.success) {
+                        alert("Thông tin đã được gửi thành công!");
+                    }
+                    else {
+                        alert("Có lỗi xảy ra!");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        } 
+        
+    }
+</script>

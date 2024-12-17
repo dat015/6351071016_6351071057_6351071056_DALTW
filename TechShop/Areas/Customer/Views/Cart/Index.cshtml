@@ -1,0 +1,387 @@
+﻿@model TechShop.ViewModel.CartVM
+
+@{
+    Layout = "_Layout";
+
+}
+<style>
+    .col-lg-8 {
+        width: 100% !important;
+    }
+
+    .sumary_style {
+        padding-top: 0px !important;
+        width: 100%;
+    }
+
+    .info_order {
+        padding-top: 18px;
+        width: 60%;
+    }
+
+    #formUpdateQuantity {
+        width: 41%;
+    }
+
+    .upload_quantity {
+        display: flex;
+    }
+
+    .border {
+        padding: 0px 10px;
+        padding-top: 8px;
+    }
+
+        .border:hover {
+            background-color: #f8f8f8;
+        }
+
+    .change {
+        display: inline-block;
+        padding: 10px;
+        font-size: 15px;
+        text-decoration: none;
+        color: #000;
+        margin: 0 5px;
+        cursor: pointer;
+    }
+</style>
+<div class="container">
+    <section class="h-100 h-custom">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12">
+                    <div class="card card-registration card-registration-2" style="border : none;">
+                        <div class="card-body p-0">
+                            <div class="row g-0">
+                                <div class="col-lg-8">
+                                    <div class="p-5">
+                                        <div class="d-flex justify-content-between align-items-center mb-5">
+                                            <h1 class="fw-bold mb-0">Shopping Cart</h1>
+                                            <h6 class="mb-0 text-muted">@Model.ListCart.Count() Items</h6>
+                                        </div>
+                                        <!-- SẢN PHẨM-->
+
+                                        <hr class="my-4">
+                                        @if (Model.ListCart != null && Model.ListCart.Any())
+                                        {
+                                            @foreach (var cartItem in Model.ListCart)
+                                            {
+                                                <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                                    <div class="col-md-2 col-lg-2 col-xl-2">
+                                                        <img src="@cartItem.Specs?.Product?.Img ?? " /path/to/default-image.jpg"" class="img-fluid rounded-3">
+                                                    </div>
+                                                    <div class="col-md-3 col-lg-3 col-xl-3">
+                                                        <h6 class="mb-0">@cartItem.Specs?.Product?.ProductName ?? "Không có tên sản phẩm"</h6>
+                                                    </div>
+                                                    <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
+                                                        <a href="javascript:void(0)" class="change" onclick="changeQuantity(-1, @cartItem.specId)">-</a>
+                                                        <a id="quantityDisplay-@cartItem.specId" class="border">@cartItem.quantity</a>
+                                                        <a href="javascript:void(0)" class="change" onclick="changeQuantity(1, @cartItem.specId)">+</a>
+                                                    </div>
+                                                    <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+                                                        <h6 class="mb-0" id="unitPriceBase-@cartItem.specId">
+                                                            @(cartItem.Specs?.Price.ToString("#,##0.##") ?? "0") (đ)
+                                                        </h6>
+                                                    </div>
+                                                    <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+                                                        <h6 class="mb-0" id="totalPriceBase-@cartItem.specId">
+                                                            @(cartItem.price.ToString("#,##0.##") ?? "0") (đ)
+                                                        </h6>
+                                                    </div>
+                                                    <div class="col-md-1 col-lg-1 col-xl-1 text-end">
+                                                        <a href="#!" class="text-muted"><i class="fas fa-times"></i></a>
+                                                    </div>
+                                                    <div class="col-md-1 col-lg-1 col-xl-1 text-end">
+                                                        <form id="formDeleteItem" asp-controller="Cart" asp-action="DeleteItem" asp-route-id="@cartItem.specId" method="post" class="d-inline">
+                                                            <button type="submit" class="btn btn-danger btn-sm mt-3 confirmDeletion">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <p class="text-center">Giỏ hàng của bạn hiện đang trống.</p>
+                                        }
+
+
+                                        <!--KẾT THÚC SHOW SẢN PHẨM-->
+
+
+
+
+                                        <form method="post" id="formInfo" asp-area="Customer" asp-controller="Cart" asp-action="Checkout" class="p-3">
+                                            <hr class="my-4">
+
+                                            <div style="display: flex; justify-content: space-between;">
+
+                                                <div class="info_order">
+                                                    <div>
+                                                        <h5 class="text-uppercase mb-3">PHUONG THỨC THANH TOÁN</h5>
+                                                        @foreach (var payment in Model.paymentMethods)
+                                                        {
+                                                            <div class="d-flex flex-row">
+                                                                <div class="d-flex align-items-center pe-2">
+                                                                    <input class="form-check-input" type="radio" name="PaymentId" id="radioNoLabel2"
+                                                                           value="@payment.PaymentMethodId" aria-label="..." />
+                                                                </div>
+                                                                <div class="rounded border d-flex w-100 p-3 align-items-center">
+                                                                    <p class="mb-0">
+                                                                        @payment.MethodName
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        }
+
+
+
+                                                    </div>
+
+
+
+                                                    <hr class="my-4">
+
+                                                    <div class="modal-body p-4">
+                                                        <div class="row">
+                                                            <h5 class="text-uppercase mb-3">THÔNG TIN GIAO HÀNG</h5>
+
+                                                            <div class="col">
+
+                                                                <div class="form-group mb-3">
+                                                                    <label for="proviceSelect" class="form-label">Tỉnh/Thành phố*</label>
+                                                                    <select id="proviceSelect" class="form-control" name="proviceName">
+                                                                        <option selected>Chọn Tỉnh/Thành phố</option>
+                                                                        @foreach (var item in Model.listProvices)
+                                                                        {
+                                                                            <option value="@item.code">@item.name</option>
+                                                                        }
+                                                                    </select>
+                                                                </div>
+
+                                                                <div class="form-group mb-3">
+                                                                    <label for="districtSelect" class="form-label">Quận/Huyện*</label>
+                                                                    <select id="districtSelect" class="form-control" name="districtName" disabled>
+                                                                        <option selected>Chọn Quận/Huyện</option>
+                                                                    </select>
+                                                                </div>
+
+                                                                <div class="form-group mb-3">
+                                                                    <label for="wardSelect" class="form-label">Phường/Xã*</label>
+                                                                    <select id="wardSelect" class="form-control" name="wardName" disabled>
+                                                                        <option selected>Chọn Phường/Xã</option>
+                                                                    </select>
+                                                                </div>
+
+                                                                <div class="form-group mb-3">
+                                                                    <label for="houseSelect" class="form-label">Địa chỉ nhà*</label>
+                                                                    <input id="houseSelect" type="text" class="form-control" name="houseAddress" placeholder="Địa chỉ nhà" aria-describedby="addon-wrapping">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col">
+                                                                <div class="form-group mb-3">
+                                                                    <label for="nameSelect" class="form-label">Họ và Tên*</label>
+                                                                    <input id="nameSelect" type="text" class="form-control" name="name" placeholder="Họ và Tên" aria-describedby="addon-wrapping">
+                                                                </div>
+
+                                                                <div class="form-group mb-3">
+                                                                    <label for="phoneSelect" class="form-label">Số Điện Thoại*</label>
+                                                                    <input id="phoneSelect" type="text" class="form-control" name="phone" placeholder="Số Điện Thoại" aria-describedby="addon-wrapping">
+                                                                </div>
+
+                                                                <div class="form-group mb-3">
+                                                                    <label for="statusSelect" class="form-label">Ghi chú (tối đa 200 kí tự)</label>
+                                                                    <div class="textarea-wrapper">
+                                                                        <textarea name="note" id="statusSelect" class="form-control" maxlength="200" placeholder="Hãy gọi tôi khi chuẩn bị hàng xong" rows="4"></textarea>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div style="width: 36%;">
+
+                                                    <div class="sumary_style">
+                                                        <h3 class="fw-bold mb-5 mt-2 pt-1">
+                                                            TỔNG TIỀN
+                                                        </h3>
+                                                        <hr class="my-4">
+                                                        <div>
+                                                            <p>
+                                                                <b> <span class="text-success">@Model.Total.ToString("#,##0.##") (đ)</span></b>
+                                                            </p>
+                                                        </div>
+
+
+
+
+
+
+
+                                                        <hr class="my-4">
+
+
+
+                                                        <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-danger btn-block btn-lg"
+                                                                style="padding: 0.5rem 7rem;     padding-left: 137px;">
+                                                            Đặt Hàng
+                                                        </button>
+
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+
+                                        </form>
+
+
+
+
+
+
+
+                                        <div class="pt-5">
+                                            <h6 class="mb-0">
+                                                <a asp-controller="Home" asp-action="Index" class="text-body">
+                                                    <i class="fas fa-long-arrow-alt-left me-2"></i>Back to shop
+                                                </a>
+                                            </h6>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        var districtSelect = document.getElementById("districtSelect");
+        var proviceSelect = document.getElementById("proviceSelect");
+        var wardSelect = document.getElementById("wardSelect");
+
+
+
+        proviceSelect.addEventListener('change', function () {
+            console.log("Provice select changed"); // Kiểm tra xem sự kiện có được kích hoạt không
+            var provinceId = this.value;
+
+            if (provinceId) {
+                console.log(provinceId);
+                $.ajax({
+                    url: '@Url.Action("GetDistrictsByProvice", "Cart", new { Area = "Customer" })',
+                    type: "GET",
+                    data: { provinceId: provinceId },
+                    success: function (data) {
+                        console.log("Ajax request succeeded");
+                        districtSelect.innerHTML = "<option selected>Quận/Huyện</option>";
+                        $.each(data, function (i, district) {
+                            var option = document.createElement('option');
+
+                            option.text = district.name;
+                            option.value = district.code;
+
+
+                            option.setAttribute('name', 'districtName');
+                            districtSelect.append(option);
+                        });
+                        districtSelect.disabled = false;
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Ajax request failed: ", status, error); // Xử lý lỗi
+                    }
+                });
+                wardSelect.disabled = true;
+
+            }
+        });
+
+        districtSelect.addEventListener('change', function () {
+            var districtId = this.value;
+            console.log(districtId);
+            if (districtId) {
+                $.ajax({
+                    url: '@Url.Action("GetWardsByDistrict", "Cart", new { Area = "Customer" })',
+                    type: 'GET',
+                    data: { districtId: districtId },
+                    success: function (data) {
+                        wardSelect.innerHTML = '<option selected>Phường/Xã</option>';
+                        $.each(data, function (i, ward) {
+                            var option = document.createElement('option');
+                            option.text = ward.name;
+                            option.value = ward.code;
+                            option.setAttribute('name', 'wardName');
+                            wardSelect.append(option);
+                        });
+                        wardSelect.disabled = false;
+                    }
+                });
+            } else {
+                wardSelect.disabled = true;
+            }
+        });
+    });
+
+    function changeQuantity(change, idProduct) {
+        const quantityDisplay = document.getElementById(`quantityDisplay-${idProduct}`);
+        let currentValue = parseInt(quantityDisplay.textContent);
+
+        // Kiểm tra số lượng hợp lệ (không nhỏ hơn 1)
+        let newValue = currentValue + change;
+        if (newValue < 1) {
+            newValue = 1; // Không cho phép số lượng nhỏ hơn 1
+        }
+
+        // Hiển thị giá trị mới trên giao diện
+        quantityDisplay.textContent = newValue;
+
+        // Gọi Ajax để cập nhật số lượng trên server
+        updateQuantity(idProduct, newValue);
+    }
+
+
+    function updateQuantity(idProduct, quantity) {
+            console.log("idProduct:", idProduct);
+            console.log("quantity:", quantity);
+
+            $.ajax({
+            url: '/Customer/Cart/UpdateQuantity',
+            type: 'POST',
+            data: {
+                id: idProduct, // Gửi theo kiểu form data
+                quantity: quantity
+            },
+            success: function (response) {
+                if (response.success) {
+                    console.log("Cập nhật thành công:", response);
+                    // Cập nhật các giá trị như bình thường
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function (error) {
+                console.error("Lỗi khi cập nhật:", error);
+                alert('Không thể cập nhật số lượng, vui lòng thử lại sau.');
+            }
+        });
+    }
+
+
+</script>
+
+
+

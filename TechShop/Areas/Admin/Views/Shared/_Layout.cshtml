@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - TechShop</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="~/css/home_content.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/TechShop.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+    <header>
+        <div class="header">
+            <div class="header__logo">
+                <a href="#">
+                    <img src="~/images/logo_laptopaz (2).jpg" class="headder__logo--img" />
+                </a>
+            </div>
+            <div class="header__search">
+                <input type="text" class="header__search--input" placeholder="Search here" />
+                <div class="header__search--icon">
+                    <i class="bi bi-search" style="color :white;"></i>
+                </div>
+                
+
+            </div>
+            <div class ="header__phone">
+                <div class="header__phone--item">
+                    <i class="bi bi-telephone-fill" style="color :red;"></i>
+                    <b style="color :red; font-size : 18px;">HOTLINE</b>
+                    <br />  
+                    <b style="font-size: 20px;">0825 233 233</b>
+                </div>
+            </div>
+            <div class="header__shopcart">
+                <div class="header__shopcart--item">
+                    <i class="bi bi-cart-fill" style="color :red; font-size:16px;"></i>
+                    <br/>
+                    <span style="font-size:16px;">
+                        Giỏ hàng 
+                    </span>
+                </div>
+            </div>
+        </div>
+       
+    </header>
+    <nav class="main-menu">
+
+        <div class="main-menu__item">
+            
+            <i class="bi bi-laptop" id="main-menu__item--icon" style="color :white;"></i>
+
+            <b >
+               LAPTOP MỚI
+            </b>
+            
+
+        </div>
+        <div class="main-menu__item">
+            <i class="bi bi-windows" id="main-menu__item--icon" style="color :white;"></i>
+            <b>SURFACE</b>
+
+        </div>
+        <div class="main-menu__item">
+            <i class="bi bi-laptop" id="main-menu__item--icon" style="color :white;"></i>
+            <b>LAPTOP LIKE NEW</b>
+
+        </div>
+        <div class="main-menu__item" >
+            
+            <i class="bi bi-fire" id="main-menu__item--icon" style="color :white;"></i>
+            <b>KHUYẾN MÃI</b>
+
+        </div>
+        <div class="main-menu__item" >
+            <i class="bi bi-wallet2" id="main-menu__item--icon" style="color :white;"></i>
+            <b>TRẢ GÓP</b>
+
+        </div>
+
+
+    </nav>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="bg-dark text-white text-center text-lg-start mt-auto">
+        <div class="container p-4">
+            <div class="row p-0">
+                <div class="col-3">
+                    <h4>CÔNG TY TNHH TIN HỌC CÔNG NGHỆ HD VIỆT NAM</h4>
+                    <p>
+                        Địa chỉ: Thôn Vĩnh Lợi, Mỹ Thành, Phù Mỹ, Bình Định <br />
+                        Hotline: 0987 88x xxx<br />
+                        Email: hieu01bdvn@gmail.com or dat...<br />
+                        <a class="bi bi-facebook" style="font-size: 25px" href="https://www.facebook.com/conduong.cuoj.3"></a>
+                        <a class="bi bi-youtube p-3" style="font-size: 25px" href="https://www.youtube.com/channel/UCRbJqGBfa3wYsDA-3jp3VGA"></a>
+                        <a class="bi bi-tiktok" style="font-size: 25px" href=""></a>
+                    </p>
+                </div>
+                <div class="col-3">
+                    <h4>THÔNG TIN CÔNG TY</h4>
+                    <p>
+                        Giới thiệu công ty <br />
+                        Tuyển dụng <br />
+                        Góp ý, khiếu nại <br />
+                    </p>
+                </div>
+                <div class="col-3">
+                    <h4>CHÍNH SÁCH CÔNG TY</h4>
+                    <p>
+                        Chính sách chất lượng<br />
+                        Chính sách bảo hành - bảo trì<br />
+                        Chính sách đổi trả<br />
+                        Chính sách bảo mật thông tin<br />
+                        Chính sách vận chuyển<br />
+                        Hướng dẫn mua hàng- thanh toán<br />
+                    </p>
+                </div>
+                <div class="col-3 square-blue p-1">
+                    <div class="row">
+                        <div class="col-4 text-center">
+                            <i class="bi bi-telephone-forward" style="font-size: 30px"></i>
+                        </div>
+                        <div class="col-8">
+                            HOTLINE<br />
+                            0987 88x xxx
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-3">
+                    <h4>HỆ THỐNG CỬA HÀNG LAPTOPAZ</h4>
+                    <h5>LaptopAZ cơ sở Thái Hà</h5>
+                    <p>
+
+                        Số 18, ngõ 121, Thái Hà, Đống Đa, Hà Nội<br />
+                        Hotline : 0825 233 233<br />
+                        Bán hàng: Từ 8h30 - 21h30<br />
+                        Kỹ thuật: Từ 8h30 - 12h & 13h30 - 17h30<br />
+                        Xem chỉ đường<br />
+                    </p>
+                </div>
+                <div class="col-3">
+                    <h4>
+                        HỆ THỐNG CỬA HÀNG LAPTOPAZ
+                    </h4>
+                    <h5>LaptopAZ cơ sở Hà Đông</h5>
+                    <p>
+                        Số 56 Trần Phú, Hà Đông, Hà Nội<br />
+                        Hotline: 0825 233 233<br />
+                        Bán hàng: Từ 8h30 - 21h30<br />
+                        Kỹ thuật: Từ 8h30 - 12h & 13h30 - 17h30<br />
+                        Xem chỉ đường<br />
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center p-3 bg-dark">
+            © 2024 CodeGym & Suy
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

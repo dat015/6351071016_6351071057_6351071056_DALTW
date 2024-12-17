@@ -1,0 +1,80 @@
+﻿@model TechShop.ViewModel.RegisterVM
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Register";
+}
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="row border rounded-5 p-3 bg-white shadow box-area">
+        <div class="col-md-6 rou    nded-4 d-flex justify-content-center align-items-center flex-column left-box" style="background: #103cbe;">
+            <div class="featured-image mb-3">
+                <img src="" class="img-fluid" style="width: 250px;">
+            </div>
+            <p class="text-white fs-2" style="font-family: 'Courier New', Courier, monospace; font-weight: 600;">Be Verified</p>
+            <small class="text-white text-wrap text-center" style="width: 17rem; font-family: 'Courier New', Courier, monospace;">Join experienced Designers on this platform.</small>
+        </div>
+
+        <div class="col-md-6 right-box">
+            <form id="registerForm" asp-action="Register" asp-controller="User" asp-area="Customer">
+
+                <div class="row align-items-center">
+                    <div class="header-text mb-4 text-center">
+                        <h2>SIGN UP</h2>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input asp-for="Email" type="email" class="form-control form-control-lg bg-light fs-6" placeholder="Email address"  id="email" />
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <input asp-for="Password" type="password" class="form-control form-control-lg bg-light fs-6" placeholder="Password" id="password" />
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="password" class="form-control form-control-lg bg-light fs-6" placeholder="Confirm Password" name="confirmPassword" id="confirmPassword" />
+                        <br />
+                        <span id="passwordMismatchError" class="text-danger" style="display: none;">Passwords do not match.</span>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input asp-for="Name" type="text" class="form-control form-control-lg bg-light fs-6" placeholder="Name" id="name" />
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <input asp-for="Address" type="text" class="form-control form-control-lg bg-light fs-6" placeholder="Address" id="address" />
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <input asp-for="PhoneNumber" type="text" class="form-control form-control-lg bg-light fs-6" placeholder="Phone Number" id="phoneNumber" />
+                    </div>
+
+                </div>
+                <div class="input-group mb-3">
+                    <button type="submit" class="btn btn-lg btn-primary w-100 fs-6">Sign Up</button>
+                </div>
+                <div class="input-group mb-3">
+                    <button type="button" class="btn btn-lg btn-light w-100 fs-6">
+                        <i class="bi bi-google me-2" style="width:25px;"></i>
+                        <small>Sign Up with Google</small>
+                    </button>
+                </div>
+                <div class="row">
+                    <small>You have an account? <a href="#">Login</a></small>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('registerForm').addEventListener('submit', function(event) {
+        var password = document.getElementById('password').value;
+        var confirmPassword = document.getElementById('confirmPassword').value;
+        var errorElement = document.getElementById('passwordMismatchError');
+
+        if (password !== confirmPassword) {
+            event.preventDefault(); // Ngăn chặn gửi form
+            errorElement.style.display = 'block'; // Hiển thị lỗi
+        } else {
+            errorElement.style.display = 'none'; // Ẩn lỗi
+        }
+    });
+</script>

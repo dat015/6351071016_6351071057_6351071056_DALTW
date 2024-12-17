@@ -1,0 +1,58 @@
+﻿@model IEnumerable<Product>
+
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Product List";
+}
+
+<table class="table table-hover">
+    <div class="p-3">
+        <h2>MANAGE PRODUCT</h2>
+        <a asp-controller="Product" asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle-fill"></i> Create Product
+        </a>
+    </div>
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">PriceBase</th>
+            <th scope="col">Image</th>
+            <th scope="col">Description</th>
+            <th scope="col">Stock Quantity</th>
+            <th scope="col">Category</th>
+            <th scope="col">Branch</th>
+            <th scope="col">Manage</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var pro in Model)
+        {
+            <tr>
+                <th scope="row">@pro.ProductId</th>
+                <td>@pro.ProductName</td>
+                <td>@pro.PriceBase</td>
+                <td>
+                    <img src="~/media/products/@pro.Img" width="120" />
+                </td>
+                <td>@pro.Description</td>
+                <td>@pro.StockQuantity</td>
+                <td>@pro.CategoryOfProducts.CategoryName</td>
+                <td>@pro.BrandOfProducts.BrandName</td>
+                <td>
+
+
+                    <a asp-controller="Product" asp-action="Edit" asp-route-id="@pro.ProductId"
+                       class="btn btn-warning btn-sm mt-3">
+                        <i class="bi bi-pencil-square"></i> Sửa
+                    </a>
+
+                    <a asp-controller="Product" asp-action="Delete" asp-route-id="@pro.ProductId"
+                       class="btn btn-danger btn-sm mt-3 confirmDeletion">
+                        <i class="bi bi-trash"></i> Xóa
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

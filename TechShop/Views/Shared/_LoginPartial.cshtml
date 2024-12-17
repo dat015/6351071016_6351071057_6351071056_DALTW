@@ -1,0 +1,13 @@
+﻿@{
+    var isAuthenticated = Context.User.Identity.IsAuthenticated;
+    var email = Context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+}
+
+@if (isAuthenticated)
+{
+    <p>Chào, @email! <a asp-area="Customer" asp-controller="User" asp-action="Logout">Log out</a></p>
+}
+else
+{
+        <p> <a asp-controller="User" asp-action="Login" style="color:black;">Đăng nhập</a> | <a asp-controller="User" asp-action="Register" style="color:black;">Đăng ký</a></p>
+}

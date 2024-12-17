@@ -1,0 +1,79 @@
+﻿@model TechShop.ViewModel.OrderVM;
+@{
+}
+
+<table class="table table-hover">
+    <div class="p-3">
+        <h2>MANAGE ORDER</h2>
+
+    </div>
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Status Payment</th>
+            <th scope="col">Status Shipping</th>
+            <th scope="col">Note</th>
+            <th scope="col">Order Date</th>
+            <th scope="col">Payment Date</th>
+            <th scope="col">Price Total</th>
+            <th scope="col">Manage</th>
+        </tr>
+    </thead>
+    <tbody id="orderTableBody">
+        @foreach (var item in Model.orders)
+        {
+            <tr id="viewRow_@item.OrderId">
+                <th scope="row">@item.OrderId</th>
+                <td>@item.StatusPayment</td>
+                <td>@item.StatusShipping</td>
+                <td>@item.Note</td>
+                <td>@item.OrderDate</td>
+                <td>@item.PaymentDate</td>
+                <td>@item.TotalAmount.ToString("#,##0.##") (đ)</td>
+                <td scope="row">
+                    <button id="edit" type="button" class="btn btn-secondary" onclick="editItem(@item.OrderId)">
+                        <i class="bi bi-pencil-square"></i> Sửa
+                    </button>
+                    <button id="delete" type="button" class="btn btn-danger" onclick="deleteItem(@item.OrderId)">
+                        <i class="bi bi-trash"></i> Xóa
+                    </button>
+                </td>
+            </tr>
+            <tr id="editRow_@item.OrderId" style="display:none;">
+                <th scope="row">@item.OrderId</th>
+                <td>
+                    <input type="text" id="statusPayment_@item.OrderId" value="@item.StatusPayment" class="form-control">
+                </td>
+                <td>
+                    <input type="text" id="statusShipping_@item.OrderId" value="@item.StatusShipping" class="form-control">
+                </td>
+                <td>
+                    <input type="text" id="note_@item.OrderId" value="@item.Note" class="form-control">
+                </td>
+                <td>
+                    <input type="text" id="orderDate_@item.OrderId" value="@item.OrderDate.ToString("yyyy-MM-dd")" class="form-control" disabled>
+                </td>
+                <td>
+                    <input type="text" id="paymentDate_@item.OrderId" value="@item.PaymentDate.ToString("yyyy-MM-dd")" class="form-control" disabled>
+                </td>
+                <td>
+                    <input type="text" value="@item.TotalAmount.ToString("#,##0.##")" class="form-control" disabled>
+                </td>
+                <td scope="col">
+                    <button type="button" id="save" class="btn btn-secondary" onclick="updateItem(@item.OrderId)">
+                        <i class="bi bi-save"></i> Lưu
+                    </button>
+                    <button type="button" id="cancel" class="btn btn-danger" onclick="cancelEdit(@item.OrderId)">
+                        <i class="bi bi-x-circle"></i> Hủy
+                    </button>
+                </td>
+            </tr>
+
+
+        }
+    </tbody>
+
+</table>
+
+
+

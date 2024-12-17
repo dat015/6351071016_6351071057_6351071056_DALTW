@@ -1,0 +1,41 @@
+﻿@model IEnumerable<Brand>
+@{
+    ViewData["Title"] = "Brand";
+    Layout = "_LayoutAdmin";
+}
+
+<table class="table table-hover">
+    <div class="p-3">
+        <h4>Danh sách nhãn hàng</h4>
+        <a asp-controller="Brand" asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle-fill"></i> Thêm nhãn hàng mới
+        </a>
+    </div>
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Tên nhãn hàng</th>
+            <th scope="col">Quản lý</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var brand in Model)
+        {
+            <tr>
+                <th scope="row">@brand.BrandId</th>
+                <td>@brand.BrandName</td>
+                <td>
+                    <a asp-controller="Brand" asp-action="Edit" asp-route-id="@brand.BrandId"
+                       class="btn btn-warning btn-sm mt-3">
+                        <i class="bi bi-pencil-square"></i> Sửa
+                    </a>
+
+                    <a asp-controller="Brand" asp-action="Delete" asp-route-id="@brand.BrandId"
+                       class="btn btn-danger btn-sm mt-3">
+                        <i class="bi bi-trash"></i> Xóa
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
