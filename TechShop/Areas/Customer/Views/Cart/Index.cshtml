@@ -90,7 +90,9 @@
                                                             <i class="bi bi-trash"></i>
                                                         </button>
                                                     </div>
+                                                    <hr />
                                                 </div>
+
 
                                             }
                                         }
@@ -105,144 +107,20 @@
 
 
 
-                                        <form method="post" id="formInfo" asp-area="Customer" asp-controller="Cart" asp-action="Checkout" class="p-3">
-                                            <hr class="my-4">
 
-                                            <div style="display: flex; justify-content: space-between;">
-
-                                                <div class="info_order">
-                                                    <div>
-                                                        <h5 class="text-uppercase mb-3">PHUONG THỨC THANH TOÁN</h5>
-                                                        @foreach (var payment in Model.paymentMethods)
-                                                        {
-                                                            <div class="d-flex flex-row">
-                                                                <div class="d-flex align-items-center pe-2">
-                                                                    <input class="form-check-input" type="radio" name="PaymentId" id="radioNoLabel2"
-                                                                           value="@payment.PaymentMethodId" aria-label="..." />
-                                                                </div>
-                                                                <div class="rounded border d-flex w-100 p-3 align-items-center">
-                                                                    <p class="mb-0">
-                                                                        @payment.MethodName
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        }
-
-
-
-                                                    </div>
-
-
-
-                                                    <hr class="my-4">
-
-                                                    <div class="modal-body p-4">
-                                                        <div class="row">
-                                                            <h5 class="text-uppercase mb-3">THÔNG TIN GIAO HÀNG</h5>
-
-                                                            <div class="col">
-
-                                                                <div class="form-group mb-3">
-                                                                    <label for="proviceSelect" class="form-label">Tỉnh/Thành phố*</label>
-                                                                    <select id="proviceSelect" class="form-control" name="proviceName">
-                                                                        <option selected>Chọn Tỉnh/Thành phố</option>
-                                                                        @foreach (var item in Model.listProvices)
-                                                                        {
-                                                                            <option value="@item.code">@item.name</option>
-                                                                        }
-                                                                    </select>
-                                                                </div>
-
-                                                                <div class="form-group mb-3">
-                                                                    <label for="districtSelect" class="form-label">Quận/Huyện*</label>
-                                                                    <select id="districtSelect" class="form-control" name="districtName" disabled>
-                                                                        <option selected>Chọn Quận/Huyện</option>
-                                                                    </select>
-                                                                </div>
-
-                                                                <div class="form-group mb-3">
-                                                                    <label for="wardSelect" class="form-label">Phường/Xã*</label>
-                                                                    <select id="wardSelect" class="form-control" name="wardName" disabled>
-                                                                        <option selected>Chọn Phường/Xã</option>
-                                                                    </select>
-                                                                </div>
-
-                                                                <div class="form-group mb-3">
-                                                                    <label for="houseSelect" class="form-label">Địa chỉ nhà*</label>
-                                                                    <input id="houseSelect" type="text" class="form-control" name="houseAddress" placeholder="Địa chỉ nhà" aria-describedby="addon-wrapping">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col">
-                                                                <div class="form-group mb-3">
-                                                                    <label for="nameSelect" class="form-label">Họ và Tên*</label>
-                                                                    <input id="nameSelect" type="text" class="form-control" name="name" placeholder="Họ và Tên" aria-describedby="addon-wrapping">
-                                                                </div>
-
-                                                                <div class="form-group mb-3">
-                                                                    <label for="phoneSelect" class="form-label">Số Điện Thoại*</label>
-                                                                    <input id="phoneSelect" type="text" class="form-control" name="phone" placeholder="Số Điện Thoại" aria-describedby="addon-wrapping">
-                                                                </div>
-
-                                                                <div class="form-group mb-3">
-                                                                    <label for="statusSelect" class="form-label">Ghi chú (tối đa 200 kí tự)</label>
-                                                                    <div class="textarea-wrapper">
-                                                                        <textarea name="note" id="statusSelect" class="form-control" maxlength="200" placeholder="Hãy gọi tôi khi chuẩn bị hàng xong" rows="4"></textarea>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div style="width: 36%;">
-
-                                                    <div class="sumary_style">
-                                                        <h3 class="fw-bold mb-5 mt-2 pt-1">
-                                                            TỔNG TIỀN
-                                                        </h3>
-                                                        <hr class="my-4">
-                                                        <div>
-                                                            <p>
-                                                                <b> <span class="text-success">@Model.Total.ToString("#,##0.##") (đ)</span></b>
-                                                            </p>
-                                                        </div>
-
-
-
-
-
-
-
-                                                        <hr class="my-4">
-
-
-
-                                                        <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-danger btn-block btn-lg"
-                                                                style="padding: 0.5rem 7rem;     padding-left: 137px;">
-                                                            Đặt Hàng
-                                                        </button>
-
-                                                    </div>
-                                                </div>
-
-                                            </div>
-
-
+                                    </div>
+                                    @if (Model.ListCart != null && Model.ListCart.Count() > 0)
+                                    {
+                                        <form asp-action="Index" asp-controller="Order" asp-area="Customer" asp-route-cartId="@Model.cart.Id" method="get" style="text-align: center;">
+                                            <input type="hidden" name="cartId" value="@Model.cart.Id" />
+                                            <button type="submit" class="btn btn-danger btn-block btn-lg" style="padding: 0.5rem 7rem; padding-left: 137px;">
+                                                Đặt Hàng
+                                            </button>
                                         </form>
 
+                                    }
 
-
-
-
-
-
-                                        <div class="pt-5">
-                                            <h6 class="mb-0">
-                                                <a asp-controller="Home" asp-action="Index" class="text-body">
-                                                    <i class="fas fa-long-arrow-alt-left me-2"></i>Back to shop
-                                                </a>
-                                            </h6>
-                                        </div>
-                                    </div>
+                                  
                                 </div>
 
                             </div>

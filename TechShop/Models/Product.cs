@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using TechShop.Repository.Validation;
+using Newtonsoft.Json;
+
 
 namespace TechShop.Models
 {

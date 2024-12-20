@@ -13,10 +13,10 @@
                                 <label for="proviceSelect" class="form-label">Tỉnh/Thành phố*</label>
                                 <select id="proviceSelect" class="form-control" name="proviceId">
                                     <option selected>Chọn Tỉnh/Thành phố</option>
-                                    @foreach (var item in Model.listProvices)
+                                   @*  @foreach (var item in Model.listProvices)
                                     {
                                         <option name="proviceName" value="@item.code">@item.name</option>
-                                    }
+                                    } *@
                                 </select>
                             </div>
 
@@ -62,7 +62,7 @@
         </div>
     </div>
 </div>
-<script>
+@* <script>
     document.addEventListener('DOMContentLoaded', function () {
         var districtSelect = document.getElementById("districtSelect");
         var proviceSelect = document.getElementById("proviceSelect");
@@ -169,4 +169,4 @@
         } 
         
     }
-</script>
+</script> *@

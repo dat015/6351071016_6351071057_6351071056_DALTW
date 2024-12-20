@@ -19,6 +19,7 @@ namespace TechShop.Models
         public string? StatusShipping { get; set; }
         [Required]
         [StringLength(100, ErrorMessage = "Status can't exceed 100 characters")]
+        public bool isAccept { get; set; } = false;
         public string Note { get; set; }
 
         [Required]
@@ -33,9 +34,9 @@ namespace TechShop.Models
         
         [ForeignKey("PaymentMethodId")]
         public PaymentMethod PaymentMethod { get; set; }
-        
+
         [Required]
-        public string distrcit { get; set; }
+        public string district { get; set; }
 
         [Required]
         public string provice { get; set; }

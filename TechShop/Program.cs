@@ -7,6 +7,9 @@ using TechShop.Models;
 using TechShop.Automapper;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,9 +21,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
         builder.Configuration.GetConnectionString("DefaultConnection")
 ));
 
-builder.Services.AddDbContext<ApplicationDb1Context>(options => options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection1")
-));
+
 builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -36,6 +37,12 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.IsEssential = true;
 });
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+    });
+
 
 
 

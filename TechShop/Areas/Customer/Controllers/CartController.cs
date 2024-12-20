@@ -23,15 +23,13 @@ namespace TechShop.Areas.Customer.Controllers
     {
 
         private readonly ApplicationDbContext _db;
-        private readonly ApplicationDb1Context _db1;
 
 
 
 
-        public CartController(ApplicationDbContext db, ApplicationDb1Context db1)
+        public CartController(ApplicationDbContext db)
         {
             _db = db;
-            _db1 = db1;
         }
         private int? userId
         {
@@ -62,18 +60,16 @@ namespace TechShop.Areas.Customer.Controllers
                     ? await _db.CartDetails
                                         .Include(cd => cd.Specs)
                                             .ThenInclude(specs => specs.Product)
-                                        .Where(c => c.CartId == cartController.Id)
+                                        .Where(c => c.CartId == cartController.Id && c.status == false)
                                         .ToListAsync()
                     : new List<CartDetail>();
 
-                var provincesItem = await _db1.provinces.ToListAsync();
                 var total = cartItems.Sum(item => item.quantity * item.price);
                 var payments = _db.PaymentMethods.ToList();
 
                 return new CartVM
                 {
                     ListCart = cartItems,
-                    listProvices = provincesItem,
                     Total = total,
                     cart = cartController,
                     paymentMethods = payments
@@ -101,14 +97,12 @@ namespace TechShop.Areas.Customer.Controllers
                     cartItem.Specs = specsFromDb.FirstOrDefault(s => s.Id == cartItem.specId);
                 }
 
-                var provincesItem = await _db1.provinces.ToListAsync();
                 var total = cartSession.Sum(item => item.quantity * item.price);
                 var payments = _db.PaymentMethods.ToList();
 
                 return new CartVM
                 {
                     ListCart = cartSession,
-                    listProvices = provincesItem,
                     Total = total,
                     paymentMethods = payments
                 };
