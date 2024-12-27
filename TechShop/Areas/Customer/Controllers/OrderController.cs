@@ -10,11 +10,12 @@ using TechShop.Utility;
 using TechShop.ViewModel;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TechShop.Areas.Customer.Controllers
 {
     [Area("Customer")]
-
+    [Authorize(Roles = SD.Role_Customer)]
     public class OrderController : Controller
     {
         private readonly ApplicationDbContext _db;

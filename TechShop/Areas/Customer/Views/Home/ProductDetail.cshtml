@@ -2,11 +2,129 @@
     Layout = "_Layout";
 }
 @model TechShop.ViewModel.DetailProductVM
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
     html {
         scroll-behavior: smooth;
     }
 
+</style>
+<style>
+    .comments-section {
+        margin-top: 20px;
+    }
+
+    .comment {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    .user-name {
+        font-weight: bold;
+    }
+
+    .comment-content {
+        margin: 5px 0;
+    }
+
+
+    .comment-date {
+        font-size: 12px;
+        color: #777;
+    }
+
+    .admin-reply {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-left: 4px solid #007bff;
+    }
+
+    .admin-reply-content {
+        margin: 0;
+    }
+
+    .admin-reply-date {
+        font-size: 12px;
+        color: #777;
+    }
+
+    .add-comment {
+        margin-top: 20px;
+    }
+
+        .add-comment textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .add-comment button {
+            display: block;
+            width: 100%;
+        }
+
+    .related-products {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        grid-template-columns: 1fr; /* Mỗi hàng chỉ chứa một sản phẩm */
+        gap: 16px; /* Khoảng cách giữa các sản phẩm */
+    }
+
+    .related-product-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 120px; /* Chiều cao của mỗi sản phẩm */
+        margin: 0 auto; /* Căn giữa sản phẩm */
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+        transition: box-shadow 0.3s;
+    }
+
+        .related-product-item:hover {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+    .related-product-img {
+        height: 100%;
+        width: 120px; /* Chiều rộng ảnh sản phẩm */
+        object-fit: cover; /* Đảm bảo ảnh bao phủ toàn bộ khung hình */
+    }
+
+    .related-product-info {
+        padding: 10px;
+        text-align: left;
+        flex: 1; /* Chiếm không gian còn lại trong item */
+    }
+
+    .related-product-name {
+        font-size: 14px;
+        font-weight: bold;
+        margin: 5px 0;
+    }
+
+    .related-product-price {
+        color: #ef1200;
+        font-size: 16px;
+    }
 </style>
 <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -15,22 +133,23 @@
         <li class="breadcrumb-item active" aria-current="page">
             @Model.product.Product.ProductName
 
-              
+
         </li>
     </ol>
 </nav>
 
 <div class="product">
     <div class="product-name">
-        <h5> <strong>
+        <h5>
+            <strong>
                 @(Model.product.Product.ProductName
 
-                + " (" + Model.product.Config.CPU.TenCPU
-                + ", " + Model.product.Config.CardDoHoa.TenCardDoHoa
-                + ", " + Model.product.Config.RAM.DungLuong
-                + ", " + Model.product.Config.ManHinh.KichThuocManHinh + ")")
-        </strong>
-           
+                    + " (" + Model.product.Config.CPU.TenCPU
+                    + ", " + Model.product.Config.CardDoHoa.TenCardDoHoa
+                    + ", " + Model.product.Config.RAM.DungLuong
+                    + ", " + Model.product.Config.ManHinh.KichThuocManHinh + ")")
+            </strong>
+
         </h5>
     </div>
     <div class="product-info">
@@ -47,6 +166,36 @@
                 @(Model.product.Product.StockQuantity <= 0 ? "Hết hàng" : "Còn hàng")
             </span>
             <br />
+
+            @if (Model.Rating != null && Model.ReviewCount != null && Model.ReviewCount > 0)
+            {
+                <div class="rating">
+                    <b>Đánh giá: </b>
+                    <span>
+                        @{
+                            // Tính trung bình sao
+                            double averageRating = (double)Model.Rating / (double)Model.ReviewCount;
+                            int fullStars = (int)Math.Floor(averageRating);
+                            int halfStar = (averageRating % 1 >= 0.5) ? 1 : 0;
+                            int emptyStars = 5 - fullStars - halfStar;
+                        }
+                        @for (int i = 0; i < fullStars; i++)
+                        {
+                            <i class="fas fa-star" style="color: #ffd700;"></i>
+                        }
+                        @if (halfStar == 1)
+                        {
+                            <i class="fas fa-star-half-alt" style="color: #ffd700;"></i>
+                        }
+                        @for (int i = 0; i < emptyStars; i++)
+                        {
+                            <i class="far fa-star" style="color: #ffd700;"></i>
+                        }
+                        (Dựa trên @Model.ReviewCount đánh giá)
+                    </span>
+                </div>
+            }
+
             <div class="product-link">
                 <a href="#SectionConfig"><span>Xem chi tiết cấu hình</span></a>
             </div>
@@ -86,15 +235,17 @@
                     }
                 </ul>
             </div>
-            @if(Model.product.Product.StockQuantity <= 0){
+            @if (Model.product.Product.StockQuantity <= 0)
+            {
                 <h3 style="color:#ef1200; ">Liên hệ</h3>
             }
-            else{
+            else
+            {
                 <form method="post" asp-action="AddToCart"
-                    asp-controller="Cart" asp-area="Customer"
-                    asp-route-id="@Model.product.ProductId"
-                    asp-route-configId="@Model.product.ConfigId"
-                    asp-route-quantity="1">
+                      asp-controller="Cart" asp-area="Customer"
+                      asp-route-id="@Model.product.ProductId"
+                      asp-route-configId="@Model.product.ConfigId"
+                      asp-route-quantity="1">
                     <button type="submit" class="btn btn-danger" style="
                         height: 50px;
                         width: 90%;
@@ -105,7 +256,7 @@
                     </button>
                 </form>
             }
-            
+
 
         </div>
         <div class="contact">
@@ -238,7 +389,55 @@
                 </div>
                 <div style="width: 100%;display: flex;justify-content: center;"><a href="https://www.facebook.com/messages/t/110101228608585" target="_blank" style="width: 180px;text-align: center;padding: 10px;text-transform: uppercase;background: #2b80dd;color: #fff;font-family: 'Roboto';font-weight: 700;border-radius: 10px;">Liên hệ ngay với <br>nhân viên tư vấn</a></div>
             </div>
-            <div class="fb-comments fb_iframe_widget fb_iframe_widget_fluid_desktop" data-width="100%" data-href="https://laptopaz.vn/new-100-lenovo-thinkbook-16-g7-2024-intel-ultra-5-125h-16gb-1tb-intel-arc-graphics-16.0quot-2k-ips-120hz.html" data-numposts="5" style="font-size: 14px; font-family: &quot;Times New Roman&quot;; width: 100%;" fb-xfbml-state="rendered" fb-iframe-plugin-query="app_id=&amp;container_width=855&amp;height=100&amp;href=https%3A%2F%2Flaptopaz.vn%2Fnew-100-lenovo-thinkbook-16-g7-2024-intel-ultra-5-125h-16gb-1tb-intel-arc-graphics-16.0quot-2k-ips-120hz.html&amp;locale=vi_VN&amp;numposts=5&amp;sdk=joey&amp;version=v5.0&amp;width="><span style="vertical-align: bottom; width: 100%; height: 199px;"><iframe name="f8cd684fd08b88783" width="1000px" height="100px" data-testid="fb:comments Facebook Social Plugin" title="fb:comments Facebook Social Plugin" frameborder="0" allowtransparency="true" allowfullscreen="true" scrolling="no" allow="encrypted-media" src="https://www.facebook.com/v5.0/plugins/comments.php?app_id=&amp;channel=https%3A%2F%2Fstaticxx.facebook.com%2Fx%2Fconnect%2Fxd_arbiter%2F%3Fversion%3D46%23cb%3Df3536b1f51c18a480%26domain%3Dlaptopaz.vn%26is_canvas%3Dfalse%26origin%3Dhttps%253A%252F%252Flaptopaz.vn%252Ff3a0cbc7168fff28b%26relation%3Dparent.parent&amp;container_width=855&amp;height=100&amp;href=https%3A%2F%2Flaptopaz.vn%2Fnew-100-lenovo-thinkbook-16-g7-2024-intel-ultra-5-125h-16gb-1tb-intel-arc-graphics-16.0quot-2k-ips-120hz.html&amp;locale=vi_VN&amp;numposts=5&amp;sdk=joey&amp;version=v5.0&amp;width=" style="border: none; visibility: visible; width: 100%; height: 199px;" class=""></iframe></span></div>
+
+            @*
+                Comment
+            *@
+            <hr />
+            <h3>Bình luận</h3>
+
+            <div class="comments-section">
+                @if (Model.Reviews != null && Model.Reviews.Count > 0)
+                {
+                    <div style=" 
+                         max-height: 400px; /* Hoặc giá trị tùy theo nhu cầu */
+                         overflow-y: auto; /* Kích hoạt cuộn dọc */
+                         padding-right: 10px;">
+                        @foreach (var review in Model.Reviews)
+                        {
+                            <div class="comment">
+                                <div class="user-info">
+                                    <img src="@review.User.Image" alt="@review.User.Name" class="user-avatar" />
+                                    <span class="user-name">@review.User.Name</span>
+                                </div>
+                                <p class="comment-content">@review.Comment</p>
+                                <span class="comment-date">@review.ReviewDate.ToString("dd/MM/yyyy HH:mm")</span>
+
+                                @*   @if (!string.IsNullOrEmpty(review.AdminReply))
+                            {*@
+                                <div class="admin-reply">
+                                    <p class="admin-reply-content"><b>Admin:</b> thanks</p>
+                                    <span class="admin-reply-date">@DateTime.Now.ToString("dd/MM/yyyy HH:mm")</span>
+                                </div>
+
+                            </div>
+                        }
+                    </div>
+
+                }
+                else
+                {
+                    <p>Chưa có bình luận nào.</p>
+                }
+
+                <div class="add-comment">
+                    <textarea id="commentContent" placeholder="Nhập bình luận của bạn" required></textarea>
+                    <button id="submitComment" onclick="Comment(@Model.product.ProductId)" class="btn btn-primary">Gửi bình luận</button>
+                </div>
+
+
+            </div>
+
         </div>
     </div>
     <div class="col column-3 pl-0" id="SectionConfig">
@@ -274,7 +473,7 @@
                                     <td scope="row"><span style="font-family: arial, helvetica, sans-serif; font-size: 8pt;">@Model.config.ManHinh.KichThuocManHinh</span></td>
                                 </tr>
                                 <tr>
-                               
+
                                 <tr>
                                     <td scope="row"><span style="font-family: arial, helvetica, sans-serif; font-size: 8pt;"><strong>Kết nối</strong></span></td>
                                     <td scope="row">
@@ -289,14 +488,14 @@
                                     <td scope="row"><span style="font-family: arial, helvetica, sans-serif; font-size: 8pt;"><strong>Pin</strong></span></td>
                                     <td scope="row"><span style="font-family: arial, helvetica, sans-serif; font-size: 8pt;">@Model.config.Pin.DungLuongPin</span></td>
                                 </tr>
-                                
+
                             </tbody>
                         </table>
                         <p style="text-align: left;"><span style="font-family: arial, helvetica, sans-serif; font-size: 8pt;">&nbsp;</span></p>
                     </div>
 
                 </div>
-                
+
             </div>
         </div>
 
@@ -304,8 +503,27 @@
             <div class="title-tab">
                 <h4>Sản phẩm tương đương</h4>
             </div>
-            <ul>
-                <li></li>
+            <ul class="related-products">
+                @if (Model.RelatedProducts != null)
+                {
+                    @foreach (var item in Model.RelatedProducts)
+                    {
+                        <li class="related-product-item">
+                            <a href="@Url.Action("ProductDetail", "Home", new { id = item.ProductId, configId = item.Specifications.FirstOrDefault()?.ConfigId, area = "Customer" })" style="display: flex
+;">
+
+                                <img src="@item.Img" alt="@item.ProductName" class="related-product-img" />
+
+
+                                <div class="related-product-info">
+                                    <h5 class="related-product-name">@item.ProductName</h5>
+                                    <p class="related-product-price">@item.Specifications.FirstOrDefault()?.Price.ToString("#,##0.##") đ</p>
+                                </div>
+                            </a>
+                        </li>
+                    }
+                }
+
             </ul>
         </div>
 
@@ -313,3 +531,44 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
+<script>
+       function Comment(productId) {
+        const comment = $('#commentContent').val().trim();
+
+        if (!comment) {
+            alert('Vui lòng nhập nội dung bình luận.');
+            return;
+        }
+        console.log(productId);
+        $.ajax({
+            url: '/Customer/Home/AddComment',
+            type: 'POST',
+            data: { productId: productId, comment: comment },
+            success: function (response) {
+                if (response.success) {
+                    // Thêm bình luận mới vào giao diện
+                    $('.comments-section').prepend(`
+                        <div class="comment">
+                            <div class="user-info">
+                                <img src="${response.comment.userImage}" alt="${response.comment.userName}" class="user-avatar" />
+                                <span class="user-name">${response.comment.userName}</span>
+                            </div>
+                            <p class="comment-content">${response.comment.content}</p>
+                            <span class="comment-date">${response.comment.date}</span>
+                        </div>
+                    `);
+
+                    // Xóa nội dung trong ô textarea
+                    $('#commentContent').val('');
+                } else {
+                    alert('Thêm bình luận không thành công: ' + response.message);
+                }
+            },
+            error: function () {
+                alert('Có lỗi xảy ra khi thêm bình luận.');
+            }
+        });
+    }
+
+
+</script>

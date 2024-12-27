@@ -138,17 +138,17 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/Scripts/js/Checkout.js"></script>
     <script>
-        $(document).ready(function () {
+       $(document).ready(function () {
         // Lấy tỉnh thành
         $.getJSON('https://esgoo.net/api-tinhthanh/1/0.htm', function (data_tinh) {
             if (data_tinh.error == 0) {
                 $.each(data_tinh.data, function (key_tinh, val_tinh) {
-                    $("#tinh").append('<option value="' + val_tinh.id + '">' + val_tinh.full_name + '</option>');
+                    $("#tinh").append('<option id="' + val_tinh.id + '" value="' + val_tinh.full_name + '">' + val_tinh.full_name + '</option>'); // Lưu id vào id, full_name vào value
                 });
 
                 // Khi chọn Tỉnh, lấy cả giá trị và text
                 $("#tinh").change(function () {
-                    var idtinh = $(this).val();
+                    var idtinh = $(this).find(":selected").attr("id"); // Lấy id của Tỉnh
                     var tinhText = $("#tinh option:selected").text(); // Lấy text của Tỉnh
                     $("#provinceText").val(tinhText); // Cập nhật vào hidden field
 
@@ -158,7 +158,7 @@
                             $("#quan").html('<option value="0">Quận Huyện</option>');
                             $("#phuong").html('<option value="0">Phường Xã</option>');
                             $.each(data_quan.data, function (key_quan, val_quan) {
-                                $("#quan").append('<option value="' + val_quan.id + '">' + val_quan.full_name + '</option>');
+                                $("#quan").append('<option id="' + val_quan.id + '" value="' + val_quan.full_name + '">' + val_quan.full_name + '</option>'); // Lưu id vào id, full_name vào value
                             });
                         }
                     });
@@ -168,7 +168,7 @@
 
         // Khi chọn Quận, lấy cả giá trị và text
         $("#quan").change(function () {
-            var idquan = $(this).val();
+            var idquan = $(this).find(":selected").attr("id"); // Lấy id của Quận
             var quanText = $("#quan option:selected").text(); // Lấy text của Quận
             $("#districtText").val(quanText); // Cập nhật vào hidden field
 
@@ -177,7 +177,7 @@
                 if (data_phuong.error == 0) {
                     $("#phuong").html('<option value="0">Phường Xã</option>');
                     $.each(data_phuong.data, function (key_phuong, val_phuong) {
-                        $("#phuong").append('<option value="' + val_phuong.id + '">' + val_phuong.full_name + '</option>');
+                        $("#phuong").append('<option id="' + val_phuong.id + '" value="' + val_phuong.full_name + '">' + val_phuong.full_name + '</option>'); // Lưu id vào id, full_name vào value
                     });
                 }
             });
@@ -185,11 +185,13 @@
 
         // Khi chọn Phường, lấy cả giá trị và text
         $("#phuong").change(function () {
-            var idphuong = $(this).val();
+            var idphuong = $(this).find(":selected").attr("id"); // Lấy id của Phường
             var phuongText = $("#phuong option:selected").text(); // Lấy text của Phường
             $("#wardText").val(phuongText); // Cập nhật vào hidden field
         });
     });
+
+
     </script>
 
 <style>

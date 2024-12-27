@@ -1,0 +1,126 @@
+﻿@model TechShop.Areas.Customer.ViewModel.UserVM
+
+<div class="order-details">
+    <h5>Chi tiết đơn hàng - @Model.order.Value.OrderId</h5>
+    <p>Ngày đặt hàng: @Model.order.Value.OrderDate</p>
+    <p>Tổng tiền: @Model.order.Value.TotalAmount.ToString("#,##0.##")đ</p>
+    <p>Địa chỉ: @(Model.order.Value.provice + " - " + Model.order.Value.district + " - " + Model.order.Value.ward )</p>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Giá</th>
+                <th>Thành tiền</th>
+                @if (!Model.order.Value.isAccept)
+                {
+                    <th>Hủy sản phẩm</th>
+                }
+                @if (Model.order.Value.StatusShipping == "2"){
+                    <th>Đánh giá</th>
+                }
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.orderDetail.Value)
+            {
+                <tr id="item-@item.Id">
+                    <td>@item.Specs.Product.ProductName</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Specs.Price.ToString("#,##0.##")đ</td>
+                    <td>@item.UnitPrice.ToString("#,##0.##")đ</td>
+                    @if (!Model.order.Value.isAccept)
+                    {
+                        <td style="text-align: center;"> <button class="btn btn-danger" onclick="DeleteOrderItem(@item.Id)"><i class="bi bi-trash3" style="color:white;"></i></button> </td>
+                    }
+                    @if (Model.order.Value.StatusShipping == "2")
+                    {
+                        <td style="text-align: center;">
+                            <button class="btn btn-link" onclick="openRatingModal(@item.Specs.Product.ProductId)">Đánh giá</button>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal đánh giá sản phẩm -->
+<div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ratingModalLabel">Đánh giá sản phẩm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="ratingForm">
+                    <div class="mb-3">
+                        <label for="rating" class="form-label">Đánh giá sao</label>
+                        <select class="form-select" id="rating" name="rating">
+                            <option value="1">1 sao</option>
+                            <option value="2">2 sao</option>
+                            <option value="3">3 sao</option>
+                            <option value="4">4 sao</option>
+                            <option value="5">5 sao</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">Bình luận</label>
+                        <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+                    </div>
+                    <input type="hidden" id="productId" name="productId" />
+                    <button type="button" class="btn btn-primary" onclick="submitRating()">Gửi đánh giá</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+       function DeleteOrderItem(id) {
+        if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi đơn hàng?")) {
+            $.ajax({
+                url: '/Customer/Account/DeleteOrderItem',
+                type: 'POST',
+                data: {
+                    orderItemId: id
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $(`#item-${id}`).remove();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                }
+            });
+        }
+    }
+        function openRatingModal(productId) {
+        document.getElementById('productId').value = productId;
+        var ratingModal = new bootstrap.Modal(document.getElementById('ratingModal'));
+        ratingModal.show();
+    }
+
+    function submitRating() {
+        var formData = new FormData(document.getElementById('ratingForm'));
+        fetch('/Customer/Account/SubmitRating', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Đánh giá của bạn đã được gửi thành công!');
+                var ratingModal = bootstrap.Modal.getInstance(document.getElementById('ratingModal'));
+                ratingModal.hide();
+            } else {
+                alert('Đã xảy ra lỗi, vui lòng thử lại!');
+            }
+        });
+    }
+</script>

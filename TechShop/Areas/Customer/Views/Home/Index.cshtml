@@ -87,12 +87,13 @@
                 <div class="list-price">
                     <div>
                         <b>Mức giá:</b>
-                        <a href="#">5 TRIỆU - 10 TRIỆU</a>
-                        <a href="#">10 TRIỆU - 20 TRIỆU</a>
-                        <a href="#">20 TRIỆU - 30 TRIỆU</a>
-                        <a href="#">30 TRIỆU - 40 TRIỆU</a>
-                        <a href="#">TRÊN 40 TRIỆU</a>
+                        <a asp-action="Product" asp-controller="Home" asp-area="Customer" asp-route-fromPrice="5000000" asp-route-toPrice="10000000">5 TRIỆU - 10 TRIỆU</a>
+                        <a asp-action="Product" asp-controller="Home" asp-area="Customer" asp-route-fromPrice="10000000" asp-route-toPrice="20000000">10 TRIỆU - 20 TRIỆU</a>
+                        <a asp-action="Product" asp-controller="Home" asp-area="Customer" asp-route-fromPrice="20000000" asp-route-toPrice="30000000">20 TRIỆU - 30 TRIỆU</a>
+                        <a asp-action="Product" asp-controller="Home" asp-area="Customer" asp-route-fromPrice="30000000" asp-route-toPrice="40000000">30 TRIỆU - 40 TRIỆU</a>
+                        <a asp-action="Product" asp-controller="Home" asp-area="Customer" asp-route-fromPrice="40000000" asp-route-toPrice="1000000000">TRÊN 40 TRIỆU</a>
                     </div>
+
                 </div>
             </div>
 

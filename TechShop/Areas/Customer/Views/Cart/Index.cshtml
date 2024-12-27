@@ -109,18 +109,18 @@
 
 
                                     </div>
-                                    @if (Model.ListCart != null && Model.ListCart.Count() > 0)
+                                    @if (Model != null && Model.ListCart != null && Model.ListCart.Count() > 0)
                                     {
-                                        <form asp-action="Index" asp-controller="Order" asp-area="Customer" asp-route-cartId="@Model.cart.Id" method="get" style="text-align: center;">
-                                            <input type="hidden" name="cartId" value="@Model.cart.Id" />
+                                        <form asp-action="Index" asp-controller="Order" asp-area="Customer" asp-route-cartId="@Model.cart?.Id" method="get" style="text-align: center;">
+                                            <input type="hidden" name="cartId" value="@Model.cart?.Id" />
                                             <button type="submit" class="btn btn-danger btn-block btn-lg" style="padding: 0.5rem 7rem; padding-left: 137px;">
                                                 Đặt Hàng
                                             </button>
                                         </form>
-
                                     }
 
-                                  
+
+
                                 </div>
 
                             </div>
@@ -207,49 +207,7 @@
         });
     });
 
-    function changeQuantity(change, idProduct) {
-        const quantityDisplay = document.getElementById(`quantityDisplay-${idProduct}`);
-        let currentValue = parseInt(quantityDisplay.textContent);
 
-        // Kiểm tra số lượng hợp lệ (không nhỏ hơn 1)
-        let newValue = currentValue + change;
-        if (newValue < 1) {
-            newValue = 1; // Không cho phép số lượng nhỏ hơn 1
-        }
-
-        // Hiển thị giá trị mới trên giao diện
-        quantityDisplay.textContent = newValue;
-
-        // Gọi Ajax để cập nhật số lượng trên server
-        updateQuantity(idProduct, newValue);
-    }
-
-
-    function updateQuantity(idProduct, quantity) {
-            console.log("idProduct:", idProduct);
-            console.log("quantity:", quantity);
-
-            $.ajax({
-            url: '/Customer/Cart/UpdateQuantity',
-            type: 'POST',
-            data: {
-                id: idProduct, // Gửi theo kiểu form data
-                quantity: quantity
-            },
-            success: function (response) {
-                if (response.success) {
-                    console.log("Cập nhật thành công:", response);
-                    // Cập nhật các giá trị như bình thường
-                } else {
-                    alert(response.message);
-                }
-            },
-            error: function (error) {
-                console.error("Lỗi khi cập nhật:", error);
-                alert('Không thể cập nhật số lượng, vui lòng thử lại sau.');
-            }
-        });
-    }
 
     function deleteCartItem(specId, cartId) {
         // Hiển thị xác nhận trước khi xóa
@@ -276,6 +234,49 @@
 
 
 </script>
+<script>
+    function changeQuantity(change, idSpec) {
+        const quantityDisplay = document.getElementById(`quantityDisplay-${idSpec}`);
+        let currentValue = parseInt(quantityDisplay.textContent);
+
+        // Cập nhật giá trị mới
+        let newValue = currentValue + change;
+        if (newValue < 1) newValue = 1; // Không cho phép số lượng nhỏ hơn 1
+
+        // Hiển thị giá trị mới
+        quantityDisplay.textContent = newValue;
+
+        // Gọi Ajax để cập nhật số lượng trên server
+        updateQuantity(idSpec, newValue);
+    }
+
+       function updateQuantity(idSpec, quantity) {
+        console.log(idSpec + "ok " + quantity);
+           $.ajax({
+        url: '/Customer/Cart/UpdateQuantity',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            specId: idSpec,
+            quantity: quantity
+        }),
+        success: function (response) {
+            if (response.success) {
+                console.log("Cập nhật thành công:", response);
+            } else {
+                alert(response.message);
+            }
+        },
+        error: function (error) {
+            console.error("Lỗi khi cập nhật:", error);
+            alert('Không thể cập nhật số lượng, vui lòng thử lại sau.');
+        }
+    });
+    }
+
+</script>
+
+
 
 
 

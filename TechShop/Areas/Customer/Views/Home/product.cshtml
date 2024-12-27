@@ -10,17 +10,25 @@
 <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page">@Model.Cate.CategoryName</li>
+        @if (Model.Cate != null)
+        {
+            <li class="breadcrumb-item active" aria-current="page">@Model.Cate.CategoryName</li>
+        }
+        else
+        {
+            <li class="breadcrumb-item active" aria-current="page">Product</li>
+        }
+
     </ol>
 </nav>
 <div class="panner">
-    <div id="carouselExampleCaptions"  style="width : 70%; height : auto;">
-        
+    <div id="carouselExampleCaptions" style="width : 70%; height : auto;">
+
         <div class="carousel-inner">
-            
-                <img src="https://laptopaz.vn/media/banner/09_May33453011ecf2c5926c42fcb06ff9e9c0.jpg" class="d-block w-100" alt="...">
-           
-            
+
+            <img src="https://laptopaz.vn/media/banner/09_May33453011ecf2c5926c42fcb06ff9e9c0.jpg" class="d-block w-100" alt="...">
+
+
         </div>
 
     </div>
@@ -32,118 +40,182 @@
             <img src="https://laptopaz.vn/media/banner/16_Jul4108c462d737b7efd60795ea602b3212.jpg" style="width : 370px; height: auto;" />
         </div>
     </div>
-
-
 </div>
 
-<div class="list-choose" style="display : flex; background-color : white;     height : 45px;">
+<div class="list-choose" style="display: flex; background-color: white; height: 45px;">
+    <!-- Dropdown cho Thương hiệu -->
     <div class="dropdown">
         <a href="#" class="dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false">
             Thương hiệu
         </a>
         <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
+            @foreach (var item in Model.Brands)
+            {
+                <li><a class="dropdown-item" asp-action="Product" asp-controller="Home" asp-route-brandId="@item.BrandId">@item.BrandName</a></li>
+            }
         </ul>
     </div>
+
+    <!-- Dropdown cho Giá -->
     <div class="dropdown">
         <a href="#" class="dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false">
-            Giá 
+            Giá
         </a>
         <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
+            <li>
+                <a class="dropdown-item" asp-action="Product" asp-controller="Home" asp-area="Customer" asp-route-fromPrice="0" asp-route-toPrice="10000000">
+                    Dưới 10 triệu
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" asp-action="Product" asp-controller="Home" asp-area="Customer" asp-route-fromPrice="10000000" asp-route-toPrice="20000000">
+                    Từ 10 triệu đến 20 triệu
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" asp-action="Product" asp-controller="Home" asp-area="Customer" asp-route-fromPrice="20000000" asp-route-toPrice="30000000">
+                    Từ 20 triệu đến 30 triệu
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" asp-action="Product" asp-controller="Home" asp-area="Customer" asp-route-fromPrice="30000000" asp-route-toPrice="40000000">
+                    Từ 30 triệu đến 40 triệu
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" asp-action="Product" asp-controller="Home" asp-area="Customer" asp-route-fromPrice="40000000" asp-route-toPrice="1000000000">
+                    Trên 40 triệu
+                </a>
+            </li>
         </ul>
     </div>
+
+
+    <!-- Dropdown cho CPU -->
     <div class="dropdown">
         <a href="#" class="dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false">
             CPU
         </a>
         <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
+            @foreach (var item in Model.CPUs)
+            {
+                <li><a class="dropdown-item" asp-action="Product" asp-controller="Home" asp-route-CPUId="@item.CPUId">@item.TenCPU</a></li>
+            }
         </ul>
     </div>
+
+    <!-- Dropdown cho Card VGA -->
     <div class="dropdown">
         <a href="#" class="dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false">
-            Cart VGA
+            Card VGA
         </a>
         <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
+            @foreach (var item in Model.cardDoHoas)
+            {
+                <li><a class="dropdown-item" asp-action="Product" asp-controller="Home" asp-route-VGAId="@item.CardDoHoaId">@item.TenCardDoHoa</a></li>
+            }
         </ul>
     </div>
+
+    <!-- Dropdown cho RAM -->
     <div class="dropdown">
         <a href="#" class="dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false">
             RAM
         </a>
         <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
+            @foreach (var item in Model.RAMs)
+            {
+                <li><a class="dropdown-item" asp-action="Product" asp-controller="Home" asp-route-ramId="@item.RAMId">@item.DungLuong</a></li>
+            }
         </ul>
     </div>
+
+    <!-- Dropdown cho Ổ cứng -->
     <div class="dropdown">
         <a href="#" class="dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false">
             Ổ cứng
         </a>
         <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
+            @foreach (var item in Model.ODia)
+            {
+                <li><a class="dropdown-item" asp-action="Product" asp-controller="Home" asp-route-OdiaId="@item.ODiaId">@item.TenODia</a></li>
+            }
         </ul>
     </div>
+
+    <!-- Dropdown cho Màn hình -->
     <div class="dropdown">
         <a href="#" class="dropdown-toggle" type="text" data-bs-toggle="dropdown" aria-expanded="false">
             Màn hình
         </a>
         <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
+            @foreach (var item in Model.ManHinhs)
+            {
+                <li><a class="dropdown-item" asp-action="Product" asp-controller="Home" asp-route-manHinhId="@item.ManHinhId">@item.KichThuocManHinh</a></li>
+            }
         </ul>
     </div>
 </div>
 
-<div class="sort">
+<div class="sort" style="display: flex;
+    gap: 10px;">
     <span>Sắp xếp theo</span>
     <form asp-controller="Home" asp-action="Product" method="get">
+
+
         <select name="sortOrder" onchange="this.form.submit()">
-            <option></option>
+            <option value="">Chọn</option>
             <option value="PriceBaseAsc">Giá: thấp -> cao</option>
             <option value="PriceBaseDesc">Giá: cao -> thấp</option>
             <option value="nameAsc">Tên A->Z</option>
+            <option value="nameDesc">Tên Z->A</option>
         </select>
-        <input type="hidden" name="cateId" value="@Model.Cate.CategoryId" />
+
+
+
+
     </form>
 </div>
 
 <div class="product-items">
-    @foreach(var product in Model.Products)
+    @foreach (var product in Model.specs)
     {
         <div class="item">
 
-            <a href="#">
+            <a  asp-action="ProductDetail" asp-controller="Home" asp-route-id="@product.ProductId" asp-route-configId="@product.ConfigId">
                 <div class="img-item">
-                    <img src="@product.Img">
+                    <img src="@product.Product.Img">
                 </div>
                 <span>
-                    @product.ProductName
+                    @(
+                        (product.Product.ProductName + " " + "["
+                        + product.Config.CPU.TenCPU
+                        + ", " + product.Config.CardDoHoa.TenCardDoHoa
+                        + ", " + product.Config.RAM.DungLuong
+                        + ", " + product.Config.ManHinh.KichThuocManHinh + "]")
+                        .Length > 50
+                        ? (product.Product.ProductName + " " + "["
+                        + product.Config.CPU.TenCPU
+                        + ", " + product.Config.CardDoHoa.TenCardDoHoa
+                        + ", " + product.Config.RAM.DungLuong
+                        + ", " + product.Config.ManHinh.KichThuocManHinh + "]").Substring(0, 70) + "..."
+                        : (product.Product.ProductName + " " + "["
+                        + product.Config.CPU.TenCPU
+                        + ", " + product.Config.CardDoHoa.TenCardDoHoa
+                        + ", " + product.Config.RAM.DungLuong
+                        + ", " + product.Config.ManHinh.KichThuocManHinh + "]")
+                        )
                 </span>
+
                 <br />
-                <b>@product.PriceBase.ToString("#,##0.##") đ</b>
+                <b>@product.Price.ToString("#,##0.##") đ</b>
             </a>
         </div>
     }
-   
-    
+
+
 
 </div>
 
 
 
-    

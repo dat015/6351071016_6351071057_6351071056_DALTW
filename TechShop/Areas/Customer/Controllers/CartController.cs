@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using TechShop.Utility;
+using TechShop.DTO;
 
 
 namespace TechShop.Areas.Customer.Controllers
@@ -30,6 +31,7 @@ namespace TechShop.Areas.Customer.Controllers
         public CartController(ApplicationDbContext db)
         {
             _db = db;
+
         }
         private int? userId
         {
@@ -127,6 +129,66 @@ namespace TechShop.Areas.Customer.Controllers
         }
 
         [HttpPost]
+        public async Task<ActionResult> UpdateQuantity([FromBody] UpdateQuantityModel model)
+        {
+            int specId = model.specId;
+            int quantity = model.quantity;
+            if (specId == 0 || quantity < 1)
+            {
+                return Json(new { success = false, message = "Thông tin không hợp lệ" });
+            }
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) == null)
+            {
+                // Giỏ hàng trong Session cho khách chưa đăng nhập
+                string cartSessionData = HttpContext.Session.GetString("Cart");
+                List<CartDetail> cartSession = string.IsNullOrEmpty(cartSessionData)
+                    ? new List<CartDetail>()
+                    : JsonConvert.DeserializeObject<List<CartDetail>>(cartSessionData);
+
+                var existingProduct = cartSession.FirstOrDefault(c => c.specId == specId);
+
+                if (existingProduct != null)
+                {
+                    existingProduct.quantity = quantity;
+                    HttpContext.Session.SetString("Cart", JsonConvert.SerializeObject(cartSession));
+                    return Json(new { success = true });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Sản phẩm không tồn tại trong giỏ hàng." });
+                }
+            }
+            else
+            {
+                // Giỏ hàng cho người dùng đã đăng nhập
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var shoppingCart = await _db.ShoppingCarts
+                    .Where(sp => sp.UserId == int.Parse(userId)) // Lấy UserId từ Claim
+                    .FirstOrDefaultAsync();
+
+                if (shoppingCart == null)
+                {
+                    return Json(new { success = false, message = "Giỏ hàng không tồn tại." });
+                }
+
+                var existingSpec = await _db.CartDetails
+                    .Where(ex => ex.specId == specId && ex.CartId == shoppingCart.Id && ex.status == false)
+                    .FirstOrDefaultAsync();
+
+                if (existingSpec != null)
+                {
+                    existingSpec.quantity = quantity;
+                    await _db.SaveChangesAsync();
+                    return Json(new { success = true });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Sản phẩm không tồn tại trong giỏ hàng." });
+                }
+            }
+        }
+
+        [HttpPost]
         public async Task<IActionResult> AddToCart(int id, int configId, int quantity = 1)
         {
             var specs = await _db.specs
@@ -157,7 +219,7 @@ namespace TechShop.Areas.Customer.Controllers
                 {
                     var item = new CartDetail
                     {
-                        CartId = 0,
+                        // CartId should not be set explicitly if it's an identity column
                         quantity = quantity,
                         specId = specs.Id,
                         price = specs.Price
@@ -186,7 +248,7 @@ namespace TechShop.Areas.Customer.Controllers
                 }
 
                 var existingSpec = await _db.CartDetails
-                    .Where(ex => ex.specId == specs.Id && ex.CartId == shoppingCart.Id)
+                    .Where(ex => ex.specId == specs.Id && ex.CartId == shoppingCart.Id && ex.status == false)
                     .FirstOrDefaultAsync();
 
                 if (existingSpec != null)
@@ -201,7 +263,8 @@ namespace TechShop.Areas.Customer.Controllers
                         CartId = shoppingCart.Id,
                         specId = specs.Id,
                         price = specs.Price,
-                        quantity = quantity
+                        quantity = quantity,
+                        status = false
                     };
                     _db.CartDetails.Add(cartItem);
                     await _db.SaveChangesAsync();
@@ -250,7 +313,7 @@ namespace TechShop.Areas.Customer.Controllers
                 foreach (var sessionItem in cartSession)
                 {
                     var existingCartDetail = await _db.CartDetails
-                        .FirstOrDefaultAsync(cd => cd.specId == sessionItem.specId && cd.CartId == shoppingCart.Id);
+                        .FirstOrDefaultAsync(cd => cd.specId == sessionItem.specId && cd.CartId == shoppingCart.Id && cd.status == false);
 
                     if (existingCartDetail != null)
                     {

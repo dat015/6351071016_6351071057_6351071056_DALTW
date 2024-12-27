@@ -1,0 +1,19 @@
+﻿@model IEnumerable<TechShop.Models.Category>
+
+
+<div class="main-menu__item">
+    <i class="bi bi-windows" id="main-menu__item--icon" style="color :white;"></i>
+    <a href="@Url.Action("Product", "Home", new {area = "Customer"})">SẢN PHẨM</a>
+
+</div>
+@foreach (var item in Model.Take(3).ToList())
+{
+    <div class="main-menu__item">
+        <i class="bi bi-laptop" id="main-menu__item--icon" style="color :white;"></i>
+        <a href="@Url.Action("Product", "Home", new { cateId = item.CategoryId, area = "Customer" })">
+            @item.CategoryName.ToUpper()
+        </a>
+    </div>
+
+}
+

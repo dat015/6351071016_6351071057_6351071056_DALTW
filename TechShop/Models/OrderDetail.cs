@@ -7,6 +7,8 @@ namespace TechShop.Models
     [PrimaryKey(nameof(specId), nameof(OrderId))]
     public class OrderDetail
     {
+        [Key]
+        public int Id { get; set; }
         public int specId { get; set; }
         [ForeignKey("specId")]
         public Specs Specs { get; set; }

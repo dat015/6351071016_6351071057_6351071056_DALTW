@@ -12,20 +12,28 @@
 </head>
 <body>
     <header>
-        <div class="header">
+        <div class="header" style="
+            position: fixed;
+            z-index: 1000;
+            background-color: #f5f5f5;
+            width: 100%;
+
+        ">
             <div class="header__logo">
                 <a asp-area="Customer" asp-controller="Home" asp-action="Index">
                     <img src="~/images/logo_laptopaz (2).jpg" class="headder__logo--img" />
                 </a>
             </div>
             <div class="header__search">
-                <input type="text" class="header__search--input" placeholder="Search here" />
-                <div class="header__search--icon">
-                    <i class="bi bi-search" style="color :white;"></i>
-                </div>
-                
-
+                <form asp-action="Product" asp-controller="Home" asp-route-searchTerm="searchTerm" method="get" style="display: flex">
+                    <input type="text" name="searchTerm" id="searchInput" class="header__search--input" placeholder="Search here" />
+                    <div id="searchIcon" class="header__search--icon" style="cursor: pointer;">
+                        <i class="bi bi-search" style="color: white;"></i>
+                    </div>
+                </form>
+               
             </div>
+
             <div class="header__shopcart">
                 <div class="header__shopcart--item">
                     <a asp-action="Index" asp-controller="Cart" asp-area="Customer"><i class="bi bi-cart-fill" style="color :red; font-size:25px;"></i></a>
@@ -43,40 +51,10 @@
         </div>
        
     </header>
-    <nav class="main-menu">
-
-        <div class="main-menu__item">
-            
-            <i class="bi bi-laptop" id="main-menu__item--icon" style="color :white;"></i>
-
-            <a href="#" >
-               LAPTOP MỚI
-            </a>
-            
-
-        </div>
-        <div class="main-menu__item">
-            <i class="bi bi-windows" id="main-menu__item--icon" style="color :white;"></i>
-            <a href="#" >SURFACE</a>
-
-        </div>
-        <div class="main-menu__item">
-            <i class="bi bi-laptop" id="main-menu__item--icon" style="color :white;"></i>
-            <a href="#" >LAPTOP LIKE NEW</a>
-
-        </div>
-        <div class="main-menu__item" >
-            
-            <i class="bi bi-fire" id="main-menu__item--icon" style="color :white;"></i>
-            <a href="#">KHUYẾN MÃI</a>
-
-        </div>
-        <div class="main-menu__item" >
-            <i class="bi bi-wallet2" id="main-menu__item--icon" style="color :white;"></i>
-            <a href="#" >TRẢ GÓP</a>
-
-        </div>
-
+    <nav class="main-menu" style="    
+        margin-top: 95px;
+        ">
+        @await Component.InvokeAsync("CategoryMenu")
 
     </nav>
     <div class="container">
@@ -118,12 +96,12 @@
                         Hướng dẫn mua hàng- thanh toán<br />
                     </p>
                 </div>
-                <div class="col-3 square-blue p-1">
+                <div class="col-3">
                     <div class="row">
                         <div class="col-4 text-center">
                             <i class="bi bi-telephone-forward" style="font-size: 30px"></i>
                         </div>
-                        <div class="col-8">
+                        <div class="col-5">
                             HOTLINE<br />
                             0987 88x xxx
                         </div>
@@ -172,3 +150,10 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+
+<script>
+    document.getElementById('searchIcon').addEventListener('click', function () {
+        document.getElementById('searchForm').submit(); // Gửi form
+    });
+</script>

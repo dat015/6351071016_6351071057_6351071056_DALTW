@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TechShop.Data;
 
@@ -11,9 +12,11 @@ using TechShop.Data;
 namespace TechShop.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241222034118_addImageForUser")]
+    partial class addImageForUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -111,13 +114,13 @@ namespace TechShop.Migrations
 
             modelBuilder.Entity("TechShop.Models.CartDetail", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("CartId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<int>("specId")
+                        .HasColumnType("int");
 
-                    b.Property<int>("CartId")
+                    b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.Property<decimal>("price")
@@ -126,15 +129,10 @@ namespace TechShop.Migrations
                     b.Property<int>("quantity")
                         .HasColumnType("int");
 
-                    b.Property<int>("specId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("status")
                         .HasColumnType("bit");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("CartId");
+                    b.HasKey("CartId", "specId");
 
                     b.HasIndex("specId");
 
@@ -285,35 +283,6 @@ namespace TechShop.Migrations
                     b.ToTable("ODias");
                 });
 
-            modelBuilder.Entity("TechShop.Models.OTP", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ExpirationTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("OtpCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("OTPs");
-                });
-
             modelBuilder.Entity("TechShop.Models.Order", b =>
                 {
                     b.Property<int>("OrderId")
@@ -394,12 +363,6 @@ namespace TechShop.Migrations
 
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
-
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -551,38 +514,6 @@ namespace TechShop.Migrations
                     b.ToTable("RAMs");
                 });
 
-            modelBuilder.Entity("TechShop.Models.Review", b =>
-                {
-                    b.Property<int>("ReviewId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReviewId"));
-
-                    b.Property<string>("Comment")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<byte?>("Rating")
-                        .HasColumnType("tinyint");
-
-                    b.Property<DateTime>("ReviewDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ReviewId");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Reviews");
-                });
-
             modelBuilder.Entity("TechShop.Models.Role", b =>
                 {
                     b.Property<int>("roleId")
@@ -672,9 +603,6 @@ namespace TechShop.Migrations
 
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsEmailConfirmed")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -772,17 +700,6 @@ namespace TechShop.Migrations
                     b.Navigation("TrongLuong");
                 });
 
-            modelBuilder.Entity("TechShop.Models.OTP", b =>
-                {
-                    b.HasOne("TechShop.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("TechShop.Models.Order", b =>
                 {
                     b.HasOne("TechShop.Models.PaymentMethod", "PaymentMethod")
@@ -838,25 +755,6 @@ namespace TechShop.Migrations
                     b.Navigation("BrandOfProducts");
 
                     b.Navigation("CategoryOfProducts");
-                });
-
-            modelBuilder.Entity("TechShop.Models.Review", b =>
-                {
-                    b.HasOne("TechShop.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TechShop.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TechShop.Models.ShoppingCart", b =>

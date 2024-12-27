@@ -35,7 +35,8 @@ namespace TechShop.Data
         public DbSet<Pin> Pins { get; set; }
         public DbSet<TrongLuong> TrongLuongs { get; set; }
         public DbSet<Specs> specs { get; set; }
-
+        public DbSet<OTP> OTPs { get; set; }
+        public DbSet<Review> Reviews { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -69,9 +70,13 @@ namespace TechShop.Data
                     new PaymentMethod { PaymentMethodId=4, MethodName="Thanh toán trả góp" }
                 );
 
-           
+
             modelBuilder.Entity<CartDetail>()
-       .HasKey(cd => new { cd.CartId, cd.specId });
+         .Property(c => c.Id)
+         .ValueGeneratedOnAdd(); 
+            modelBuilder.Entity<OrderDetail>()
+         .Property(c => c.Id)
+         .ValueGeneratedOnAdd();
 
         }
     }
