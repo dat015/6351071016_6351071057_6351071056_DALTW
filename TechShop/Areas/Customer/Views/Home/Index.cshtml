@@ -105,7 +105,11 @@
             {
                 <div class="pro-item">
                     <div class="img-item">
-                        <a asp-controller="Home" asp-action="ProductDetail" asp-route-id="@product.ProductId" asp-route-configId="@product.Specifications.FirstOrDefault().ConfigId" method="get"><img src="@product.Img" alt="Alternate Text" /></a>
+                        <a asp-controller="Home" asp-action="ProductDetail"
+                           asp-route-id="@product.ProductId"
+                           asp-route-configId="@product.Specifications?.FirstOrDefault()?.ConfigId" method="get">
+                            <img src="@product.Img" alt="Alternate Text" />
+                        </a>
                         <div class="info-item">
                             <span>
                                 <a href="#">
@@ -115,15 +119,15 @@
                                 </a>
                             </span>
                             <br />
-                            @foreach (var item in product.Specifications.Take(1))
+                            @if (product.Specifications != null && product.Specifications.Any())
                             {
-                                <b style="color : #ec3237;">@item.Price.ToString("#,##0.##") đ</b>
-
+                                <b style="color : #ec3237;">@product.Specifications.FirstOrDefault()?.Price.ToString("#,##0.##") đ</b>
                             }
                         </div>
                     </div>
                 </div>
             }
+
         </div>
     </div>
 }

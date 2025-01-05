@@ -1,58 +1,246 @@
-﻿@model IEnumerable<Product>
+﻿@model TechShop.Areas.Admin.Models.ProductVM
 
 @{
     Layout = "_LayoutAdmin";
     ViewData["Title"] = "Product List";
 }
+<style>
+    .hide {
+        display: none !important;
+    }
 
+    .truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 250px; /* Adjust as necessary */
+    }
+
+    .modal-lg {
+        max-width: 80%;
+    }
+</style>
+<div class="p-3">
+    <a asp-controller="Product" asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle-fill"></i> Thêm sản phẩm
+    </a>
+</div>
 <table class="table table-hover">
-    <div class="p-3">
-        <h2>MANAGE PRODUCT</h2>
-        <a asp-controller="Product" asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus-circle-fill"></i> Create Product
-        </a>
-    </div>
     <thead>
         <tr>
-            <th scope="col">#</th>
-            <th scope="col">Name</th>
-            <th scope="col">PriceBase</th>
-            <th scope="col">Image</th>
-            <th scope="col">Description</th>
-            <th scope="col">Stock Quantity</th>
-            <th scope="col">Category</th>
-            <th scope="col">Branch</th>
-            <th scope="col">Manage</th>
+            <th scope="col">Tên sản phẩm</th>
+            <th scope="col">Giá gốc</th>
+            <th scope="col">Ảnh</th>
+            <th scope="col">Chi tiết</th>
+            <th scope="col">Danh mục</th>
+            <th scope="col">Nhãn hàng</th>
+            <th scope="col">Cấu hình</th>
+            <th scope="col">Thao tác</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var pro in Model)
+        @foreach (var pro in await Model.Products.Value)
         {
-            <tr>
-                <th scope="row">@pro.ProductId</th>
+            <tr class="display-row" data-id="@pro.ProductId">
                 <td>@pro.ProductName</td>
                 <td>@pro.PriceBase</td>
                 <td>
-                    <img src="~/media/products/@pro.Img" width="120" />
+                    <img src="@pro.Img" width="120" />
                 </td>
-                <td>@pro.Description</td>
-                <td>@pro.StockQuantity</td>
-                <td>@pro.CategoryOfProducts.CategoryName</td>
-                <td>@pro.BrandOfProducts.BrandName</td>
+                <td class="truncate" title="@pro.Description">@pro.Description</td>
+                <td>@pro.CategoryOfProducts?.CategoryName</td>
+                <td>@pro.BrandOfProducts?.BrandName</td>
                 <td>
-
-
-                    <a asp-controller="Product" asp-action="Edit" asp-route-id="@pro.ProductId"
-                       class="btn btn-warning btn-sm mt-3">
+                    <button class="btn btn-link btn-sm details-button" onclick="Detail(@pro.ProductId)">
+                        <i class="bi bi-eye"></i> Xem
+                    </button>
+                </td>
+                <td style="display: flex; padding-top: 83px;">
+                    <button class="btn btn-warning btn-sm mt-3 edit-btn">
                         <i class="bi bi-pencil-square"></i> Sửa
-                    </a>
-
-                    <a asp-controller="Product" asp-action="Delete" asp-route-id="@pro.ProductId"
-                       class="btn btn-danger btn-sm mt-3 confirmDeletion">
+                    </button>
+                    <button class="btn btn-danger btn-sm mt-3 confirmDeletion" onclick="DeleteProduct(@pro.ProductId)">
                         <i class="bi bi-trash"></i> Xóa
-                    </a>
+                    </button>
+                </td>
+            </tr>
+            <tr class="edit-row hide" data-id="@pro.ProductId">
+                <td>
+                    <input name="productName" type="text" value="@pro.ProductName" />
+                </td>
+                <td>
+                    <input name="priceBase" type="number" value="@pro.PriceBase" />
+                </td>
+                <td>
+                    <input name="image" type="file" />
+                </td>
+                <td>
+                    <input name="description" type="text" value="@pro.Description" />
+                </td>
+                <td>
+                    <select>
+                        <option value="@pro.CategoryId"> @(pro.CategoryOfProducts?.CategoryName ?? "N/A") </option>
+                        @foreach (var item in await Model.Cate.Value)
+                        {
+                            <option value="@item.CategoryId">@item.CategoryName</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select>
+                        <option value="@pro.BrandId"> @(pro.BrandOfProducts?.BrandName ?? "N/A") </option>
+                        @foreach (var item in await Model.Brands.Value)
+                        {
+                            <option value="@item.BrandId">@item.BrandName</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <button class="btn btn-link btn-sm details-button" onclick="Detail(@pro.ProductId)">
+                        <i class="bi bi-eye"></i> Xem
+                    </button>
+                </td>
+                <td style="display: flex;">
+                    <button class="btn btn-success btn-sm save-btn">
+                        <i class="bi bi-save"></i> Lưu
+                    </button>
+                    <button class="btn btn-secondary btn-sm cancel-btn">
+                        <i class="bi bi-x-circle"></i> Hủy
+                    </button>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+<div class="modal fade" id="productDetailsModal" tabindex="-1" aria-labelledby="productDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productDetailsModalLabel">Chi tiết cấu hình</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="productDetailsContent" style="height: calc(100% - 56px); overflow-y: auto;">
+                <!-- Nội dung sẽ được tải ở đây -->
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    document.getElementById('productDetailsModal').addEventListener('hidden.bs.modal', function () {
+        document.body.className = '';
+        document.body.style = '';
+    });
+
+    function Detail(productId) {
+        if (!productId) {
+            alert("Không xác định được sản phẩm.");
+            return;
+        }
+
+        var url = '@Url.Action("GetSpecsByProduct", "Product")';
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: { id: productId },
+            success: function (response) {
+                $('#productDetailsContent').html(response);
+                var modal = new bootstrap.Modal(document.getElementById('productDetailsModal'));
+                modal.show();
+            },
+            error: function () {
+                alert("Không thể tải thông tin chi tiết sản phẩm.");
+            }
+        });
+    }
+
+    function DeleteProduct(productId) {
+        $.ajax({
+            url: "/Admin/Product/Delete",
+            type: "POST",
+            data: { id: productId },
+            success: function (result) {
+                if (result.success) {
+                    alert(result.message);
+                    const row = $('tr[data-id="' + productId + '"]');
+                    if (row.length > 0) {
+                        row.remove();
+                    }
+                } else {
+                    alert(result.message);
+                }
+            },
+            error: function () {
+                alert("Đã có lỗi xảy ra khi xóa sản phẩm.");
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        const editButtons = $(".edit-btn");
+        const cancelButtons = $(".cancel-btn");
+
+        editButtons.on('click', function () {
+            const displayRow = $(this).closest('tr');
+            const editRow = displayRow.next();
+            displayRow.addClass('hide');
+            editRow.removeClass('hide');
+        });
+
+        cancelButtons.on('click', function () {
+            const editRow = $(this).closest('tr');
+            const displayRow = editRow.prev();
+            editRow.addClass('hide');
+            displayRow.removeClass('hide');
+        });
+
+        $(".save-btn").on('click', function () {
+            const editRow = $(this).closest('tr');
+            const displayRow = editRow.prev();
+            const productId = displayRow.data('id');
+            const productName = editRow.find("input[name='productName']").val();
+            const priceBase = editRow.find("input[name='priceBase']").val();
+            const image = editRow.find("input[name='image']")[0].files[0];
+            const description = editRow.find("input[name='description']").val();
+            const categoryId = editRow.find("select").eq(0).val();
+            const brandId = editRow.find("select").eq(1).val();
+
+            let formData = new FormData();
+            formData.append("ProductId", productId);
+            formData.append("ProductName", productName);
+            formData.append("PriceBase", priceBase);
+            formData.append("Description", description);
+            formData.append("Image", image);
+            formData.append("CategoryId", categoryId);
+            formData.append("BrandId", brandId);
+
+            $.ajax({
+                url: '/Admin/Product/SaveProduct',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.success) {
+                        displayRow.find("td").eq(0).text(productName);
+                        displayRow.find("td").eq(1).text(priceBase);
+                        displayRow.find("td").eq(2).find("img").attr("src", response.newImageUrl);
+                        displayRow.find("td").eq(3).text(response.newDescription);
+                        displayRow.find("td").eq(4).text(response.newCategoryName);
+                        displayRow.find("td").eq(5).text(response.newBrandName);
+                        editRow.addClass('hide');
+                        displayRow.removeClass('hide');
+                    } else {
+                        alert('Có lỗi xảy ra trong quá trình lưu.');
+                    }
+                },
+                error: function () {
+                    alert('Lỗi kết nối với server.');
+                }
+            });
+        });
+    });
+</script>

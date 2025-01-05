@@ -77,7 +77,7 @@ namespace TechShop.Areas.Customer.Controllers
             {
                 try
                 {
-                    var role = _db.Roles.Where(r => r.roleId == 1).FirstOrDefault(); // mac dinh la customer
+                    var role = _db.Roles.Where(r => r.roleName == SD.Role_Admin).FirstOrDefault(); // mac dinh la customer
                     model.role = role;
                     model.roleId = role.roleId;
                     Console.WriteLine(role.roleId + " " + role.roleName);

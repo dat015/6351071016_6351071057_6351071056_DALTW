@@ -1,0 +1,437 @@
+﻿@model TechShop.Areas.Admin.Models.ProductVM
+
+<style>
+    .hide {
+        display: none !important;
+    }
+
+</style>
+<!-- Display the filtered product specs -->
+<a class="btn btn-primary btn-sm mt-3" id="add">
+    <i class="bi bi-plus-circle-fill"></i> Thêm cấu hình
+</a>
+<a class="btn btn-primary btn-sm mt-3 hide" id="back">
+    <i class="bi bi-plus-circle-fill"></i> Quay lại
+</a>
+<table class="table table-bordered" id="table_Product">
+    <thead>
+        <tr>
+            <th scope="col">Giá</th>
+            <th scope="col">CPU</th>
+            <th scope="col">RAM</th>
+            <th scope="col">VGA</th>
+            <th scope="col">Ổ đĩa</th>
+            <th scope="col">Màn hình</th>
+            <th scope="col">Pin</th>
+            <th scope="col">Trọng lượng</th>
+            <th scope="col">Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var spec in await Model.Specs.Value)
+        {
+            <tr class="display-row" id="@spec.Id">
+                <td>@spec.Price.ToString("#,##0.##")đ</td>
+                <td>
+                    @(spec.Config?.CPU?.TenCPU != null && spec.Config.CPU.TenCPU.Length > 50
+                        ? spec.Config.CPU.TenCPU.Substring(0, 50) + "..."
+                        : spec.Config?.CPU?.TenCPU ?? "Chưa có CPU")
+                </td>
+                <td>
+                    @(spec.Config?.RAM?.DungLuong != null && spec.Config.RAM.DungLuong.Length > 50
+                        ? spec.Config.RAM.DungLuong.Substring(0, 50) + "..."
+                        : spec.Config?.RAM?.DungLuong ?? "Chưa có RAM")
+                </td>
+                <td>
+                    @(spec.Config?.CardDoHoa?.TenCardDoHoa != null && spec.Config.CardDoHoa.TenCardDoHoa.Length > 50
+                        ? spec.Config.CardDoHoa.TenCardDoHoa.Substring(0, 50) + "..."
+                        : spec.Config?.CardDoHoa?.TenCardDoHoa ?? "Chưa có VGA")
+                </td>
+                <td>
+                    @(spec.Config?.ODia?.TenODia != null && spec.Config.ODia.TenODia.Length > 50
+                        ? spec.Config.ODia.TenODia.Substring(0, 50) + "..."
+                        : spec.Config?.ODia?.TenODia ?? "Chưa có ổ đĩa")
+                </td>
+                <td>
+                    @(spec.Config?.ManHinh?.KichThuocManHinh != null && spec.Config.ManHinh.KichThuocManHinh.Length > 50
+                        ? spec.Config.ManHinh.KichThuocManHinh.Substring(0, 50) + "..."
+                        : spec.Config?.ManHinh?.KichThuocManHinh ?? "Chưa có màn hình")
+                </td>
+                <td>
+                    @(spec.Config?.Pin?.DungLuongPin != null && spec.Config.Pin.DungLuongPin.Length > 50
+                        ? spec.Config.Pin.DungLuongPin.Substring(0, 50) + "..."
+                        : spec.Config?.Pin?.DungLuongPin ?? "Chưa có pin")
+                </td>
+                <td>
+                    @(spec.Config?.TrongLuong?.SoKg != null && spec.Config.TrongLuong.SoKg.Length > 50
+                        ? spec.Config.TrongLuong.SoKg.Substring(0, 50) + "..."
+                        : spec.Config?.TrongLuong?.SoKg ?? "Chưa có trọng lượng")
+                </td>
+                <td style="display: flex;
+                                        ">
+                    <button class="btn btn-warning btn-sm mt-3 edit-btn">
+                        <i class="bi bi-pencil-square"></i> Sửa
+                    </button>
+
+                    <button class="btn btn-danger btn-sm mt-3 confirmDeletion" onclick="DeleteSpec(@spec.Id)">
+                        <i class="bi bi-trash"></i> Xóa
+                    </button>
+
+                </td>
+            </tr>
+
+            <tr class="edit-row hide" data-id="@spec.Id">
+                <td>@spec.Price.ToString("#,##0.##")</td>
+                <td>
+                    <select class="form-control">
+                        <option value="@spec.Config.CPUId">@spec.Config.CPU.TenCPU</option>
+                        @foreach (var item in await Model.CPUs.Value)
+                        {
+                            <option value="@item.CPUId">@item.TenCPU</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control">
+                        <option value="@spec.Config.RAMId">@spec.Config?.RAM?.DungLuong</option>
+                        @foreach (var ram in await Model.RAMs.Value)
+                        {
+                            <option value="@ram.RAMId">@ram.DungLuong</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control">
+                        <option value="@spec.Config.CardDoHoaId">@spec.Config?.CardDoHoa.TenCardDoHoa</option>
+                        @foreach (var ram in await Model.CardDoHoas.Value)
+                        {
+                            <option value="@ram.CardDoHoaId">@ram.TenCardDoHoa</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control">
+                        <option value="@spec.Config.ODiaId">@spec.Config?.ODia?.TenODia</option>
+                        @foreach (var oDia in await Model.ODia.Value)
+                        {
+                            <option value="@oDia.ODiaId">@oDia.TenODia</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control">
+                        <option value="@spec.Config.ManHinhId">@spec.Config?.ManHinh?.KichThuocManHinh</option>
+                        @foreach (var manHinh in await Model.ManHinhs.Value)
+                        {
+                            <option value="@manHinh.ManHinhId">@manHinh.KichThuocManHinh</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control">
+                        <option value="@spec.Config.PinId">@spec.Config?.Pin?.DungLuongPin</option>
+                        @foreach (var pin in await Model.Pins.Value)
+                        {
+                            <option value="@pin.PinId">@pin.DungLuongPin</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    @(spec.Config?.TrongLuong?.SoKg != null && spec.Config.TrongLuong.SoKg.Length > 50
+                        ? spec.Config.TrongLuong.SoKg.Substring(0, 50) + "..."
+                        : spec.Config?.TrongLuong?.SoKg ?? "Chưa có trọng lượng")
+                </td>
+                <td style="display: flex;">
+                    <button class="btn btn-success btn-sm" onclick="SaveSpec(@spec.Id)">
+                        <i class="bi bi-save"></i> Lưu
+                    </button>
+                    <button class="btn btn-secondary btn-sm cancel-btn">
+                        <i class="bi bi-x-circle"></i> Hủy
+                    </button>
+                </td>
+            </tr>
+
+        }
+    </tbody>
+</table>
+<form asp-action="AddSpec" asp-controller="Product" method="post" class="hide" id="addProductForm">
+    <input type="hidden" id="ProductId" name="ProductId" value="@Model.ProductId)" />
+
+    <div class="form-group">
+        <label for="CPU">CPU:</label>
+        <select class="form-control" id="CPU" name="CPUId" required>
+            <option value="">Chọn CPU</option>
+            @foreach (var item in await Model.CPUs.Value)
+            {
+                <option value="@item.CPUId">@item.TenCPU</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="RAM">RAM:</label>
+        <select class="form-control" id="RAM" name="RAMId" required>
+            <option value="">Chọn RAM</option>
+            @foreach (var item in await Model.RAMs.Value)
+            {
+                <option value="@item.RAMId">@item.DungLuong</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="VGA">VGA:</label>
+        <select class="form-control" id="VGA" name="CardDoHoaId" required>
+            <option value="">Chọn VGA</option>
+            @foreach (var item in await Model.CardDoHoas.Value)
+            {
+                <option value="@item.CardDoHoaId">@item.TenCardDoHoa</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="ODia">Ổ đĩa:</label>
+        <select class="form-control" id="ODia" name="ODiaId" required>
+            <option value="">Chọn ổ đĩa</option>
+            @foreach (var item in await Model.ODia.Value)
+            {
+                <option value="@item.ODiaId">@item.TenODia</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="ManHinh">Màn hình:</label>
+        <select class="form-control" id="ManHinh" name="ManHinhId" required>
+            <option value="">Chọn màn hình</option>
+            @foreach (var item in await Model.ManHinhs.Value)
+            {
+                <option value="@item.ManHinhId">@item.KichThuocManHinh</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="Pin">Pin:</label>
+        <select class="form-control" id="Pin" name="PinId" required>
+            <option value="">Chọn pin</option>
+            @foreach (var item in await Model.Pins.Value)
+            {
+                <option value="@item.PinId">@item.DungLuongPin</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="TrongLuong">Trọng lượng:</label>
+        <select class="form-control" id="TrongLuong" name="TrongLuongId" required>
+            <option value="">Trọng lượng</option>
+            @foreach (var item in await Model.trongLuongs.Value)
+            {
+                <option value="@item.TrongLuongId">@item.SoKg</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Thêm cấu hình</button>
+</form>
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#addProductForm').submit(function (event) {
+            event.preventDefault();
+
+            var productId = parseInt($('#ProductId').val(), 10);  // Chuyển giá trị thành int
+            var cpuId = $('#CPU').val();
+            var ramId = $('#RAM').val();
+            var cardDoHoaId = $('#VGA').val();
+            var oDiaId = $('#ODia').val();
+            var manHinhId = $('#ManHinh').val();
+            var pinId = $('#Pin').val();
+            var trongLuongId = $('#TrongLuong').val();
+
+            if (isNaN(productId)) {
+                alert("Product ID không hợp lệ");
+                return;
+            }
+            console.log(productId);
+
+            // Gửi dữ liệu qua Ajax
+            $.ajax({
+                url: '/Admin/Product/AddSpec', // Đảm bảo URL đúng
+                type: 'POST',
+                data: {
+                    productId: productId,
+                    cpuId: cpuId,
+                    ramId: ramId,
+                    cardDoHoaId: cardDoHoaId,
+                    oDiaId: oDiaId,
+                    manHinhId: manHinhId,
+                    pinId: pinId,
+                    trongLuongId: trongLuongId
+                },
+                success: function (response) {
+                    if (response.message) {
+                        alert(response.message);
+                          var newSpec = response.newSpec; // Phản hồi từ server (giả định rằng đây là đối tượng spec mới)
+
+                    // Tạo một dòng mới trong bảng và thêm vào tbody
+                    var newRow = `
+                        <tr class="display-row" id="${newSpec.Id}">
+                            <td>${newSpec.Price.toString("#,##0.##")}đ</td>
+                            <td>${newSpec.Config?.CPU?.TenCPU || "Chưa có CPU"}</td>
+                            <td>${newSpec.Config?.RAM?.DungLuong || "Chưa có RAM"}</td>
+                            <td>${newSpec.Config?.CardDoHoa?.TenCardDoHoa || "Chưa có VGA"}</td>
+                            <td>${newSpec.Config?.ODia?.TenODia || "Chưa có ổ đĩa"}</td>
+                            <td>${newSpec.Config?.ManHinh?.KichThuocManHinh || "Chưa có màn hình"}</td>
+                            <td>${newSpec.Config?.Pin?.DungLuongPin || "Chưa có pin"}</td>
+                            <td>${newSpec.Config?.TrongLuong?.SoKg || "Chưa có trọng lượng"}</td>
+                            <td style="display: flex;">
+                                <button class="btn btn-warning btn-sm mt-3 edit-btn">
+                                    <i class="bi bi-pencil-square"></i> Sửa
+                                </button>
+                                <button class="btn btn-danger btn-sm mt-3 confirmDeletion" onclick="DeleteSpec(${newSpec.Id})">
+                                    <i class="bi bi-trash"></i> Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    // Thêm dòng mới vào bảng
+                    $('#table_Product tbody').append(newRow);
+
+                    $("#table_Product, #add").removeClass("hide");
+                    $("#back, #addProductForm").addClass("hide");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("Có lỗi xảy ra: " + error);
+                }
+            });
+        });
+    });
+</script>
+
+
+<script>
+
+    $(document).ready(function() {
+        // Ẩn dòng chỉnh sửa ban đầu
+        const editButtons = $(".edit-btn");
+        const saveButtons = $(".save-btn");
+        const cancelButtons = $(".cancel-btn");
+
+        // Khi nhấn nút Sửa
+        editButtons.on('click', function () {
+            const displayRow = $(this).closest('tr');
+            const editRow = displayRow.next();
+
+            // Ẩn dòng hiển thị, hiện dòng chỉnh sửa
+            displayRow.addClass('hide');
+            editRow.removeClass('hide');
+        });
+
+        // Khi nhấn nút "Thêm cấu hình"
+        $("#add").on("click", function () {
+            // Ẩn bảng và nút "Thêm cấu hình"
+            $("#table_Product, #add").addClass("hide");
+            // Hiện nút "Quay lại" và form
+            $("#back, #addProductForm").removeClass("hide");
+        });
+
+        // Khi nhấn nút "Quay lại"
+        $("#back").on("click", function () {
+            // Hiện bảng và nút "Thêm cấu hình"
+            $("#table_Product, #add").removeClass("hide");
+            // Ẩn nút "Quay lại" và form
+            $("#back, #addProductForm").addClass("hide");
+        });
+
+        // Khi nhấn nút Hủy
+        cancelButtons.on('click', function () {
+            const editRow = $(this).closest('tr');
+            const displayRow = editRow.prev();
+
+            // Ẩn dòng chỉnh sửa, hiện dòng hiển thị
+            editRow.addClass('hide');
+            displayRow.removeClass('hide');
+        });
+    });
+    function SaveSpec(specId) {
+        const editRow = $('tr.edit-row[data-id="' + specId + '"]'); // Tìm dòng chỉnh sửa dựa trên ID
+        const displayRow = editRow.prev(); // Lấy dòng hiển thị tương ứng
+
+        // Lấy giá trị mới từ dòng chỉnh sửa
+        const newCPU = editRow.find('select').eq(0).val(); // Lấy giá trị CPU từ dropdown đầu tiên
+        const newRAM = editRow.find('select').eq(1).val(); // Lấy giá trị RAM
+        const newCartDoHoa = editRow.find('select').eq(2).val(); // Lấy giá trị RAM
+        const newODia = editRow.find('select').eq(3).val(); // Lấy giá trị ổ đĩa
+        const newManHinh = editRow.find('select').eq(4).val(); // Lấy giá trị màn hình
+        const newPin = editRow.find('select').eq(5).val(); // Lấy giá trị pin
+
+        // Gửi dữ liệu qua AJAX để cập nhật trong cơ sở dữ liệu
+        $.ajax({
+            url: '/Admin/Product/UpdateSpec', // URL của action xử lý cập nhật trong Controller
+            type: 'POST',
+            data: {
+                id: specId,  // Giả sử bạn có id của cấu hình
+                cpuId: newCPU,
+                ramId: newRAM,
+                newCartDoHoa: newCartDoHoa,
+                oDiaId: newODia,
+                manHinhId: newManHinh,
+                pinId: newPin
+            },
+            success: function(data) {
+                if (data) {
+                    // Điền dữ liệu vào các trường chỉnh sửa từ kết quả trả về
+                    editRow.find('td').eq(0).text(data.Price); // Cập nhật giá
+                    editRow.find('select').eq(0).val(data.CPU); // Điền CPU vào dropdown
+                    editRow.find('select').eq(1).val(data.RAM); // Điền RAM vào dropdown
+                    editRow.find('select').eq(2).val(data.CartDoHoa); // Điền Cart Đồ Họa
+                    editRow.find('select').eq(3).val(data.ODia); // Điền ổ đĩa vào dropdown
+                    editRow.find('select').eq(4).val(data.ManHinh); // Điền màn hình vào dropdown
+                    editRow.find('select').eq(5).val(data.Pin); // Điền pin vào dropdown
+
+                    // Cập nhật dữ liệu UI (dòng hiển thị)
+                    displayRow.find('td:nth-child(2)').text(data.CPU);
+                    displayRow.find('td:nth-child(3)').text(data.RAM);
+                    displayRow.find('td:nth-child(4)').text(data.CartDoHoa);
+                    displayRow.find('td:nth-child(5)').text(data.ODia);
+                    displayRow.find('td:nth-child(6)').text(data.ManHinh);
+                    displayRow.find('td:nth-child(7)').text(data.Pin);
+
+                    // Ẩn dòng chỉnh sửa, hiển thị dòng thông tin
+                    editRow.addClass('hide');
+                    displayRow.removeClass('hide');
+                } else {
+                    alert('Dữ liệu không tồn tại!');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Lỗi khi cập nhật: ", error);
+                alert('Có lỗi xảy ra khi cập nhật cấu hình.');
+            }
+        });
+    }
+
+    function DeleteSpec(specId){
+        $.ajax({
+            url: "/Admin/Product/DeleteSpec",
+            type: "Post",
+            data: {
+                specId : specId
+            },
+            success : function(result){
+                            console.log(result); // Kiểm tra kết quả trả về
+
+                if(result.success){
+                    const row = document.getElementById(specId); // Đổi id thành specId
+                    if (row) {
+                        row.remove(); // Xóa hàng khỏi DOM
+                    }
+                }else{
+                    alert("Xóa không thành công");
+                }
+            }
+        });
+    }
+</script>
+

@@ -42,6 +42,7 @@ namespace TechShop.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Category>().HasData(
                     new Category { CategoryId = 1, CategoryName = "Laptop văn phòng", Description="Là sản phẩm bán chạy nhất của chúng tôi" },
                     new Category { CategoryId = 2, CategoryName = "Laptop Gaming", Description="Máy có cấu hình mạnh đáp ứng nhu cầu chơi game" },

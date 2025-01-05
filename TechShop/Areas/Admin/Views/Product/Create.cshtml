@@ -7,13 +7,13 @@
 
 <form method="post" asp-action="Create" enctype="multipart/form-data">
     <div class="border p-3 mt-4">
-        <h4 class="mb-3">Create New Product</h4>
+        <h4 class="mb-3">Thêm mới sản phẩm</h4>
         <div class="mb-3">
             <label class="form-label">Name</label>
             <input asp-for="ProductName" class="form-control" />
             <span asp-validation-for="ProductName" class="text-danger"></span>
         </div>
-        
+
         <div class="mb-3">
             <label class="form-label">Price</label>
             <input asp-for="PriceBase" class="form-control" />
@@ -44,6 +44,11 @@
             <span asp-validation-for="BrandId" class="text-danger"></span>
         </div>
         <div class="mb-3">
+            <label class="form-label">Warranty (Months)</label>
+            <input asp-for="warranty" class="form-control" />
+            <span asp-validation-for="warranty" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
             <label class="form-label">Image</label>
             <input type="file" asp-for="ImageUpLoad" class="form-control" />
             <span asp-validation-for="ImageUpLoad" class="text-danger"></span>
@@ -63,6 +68,7 @@
         </div>
     </div>
 </form>
+
 
 @section Scripts{
     @{
