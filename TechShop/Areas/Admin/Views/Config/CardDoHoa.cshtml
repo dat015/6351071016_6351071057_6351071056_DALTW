@@ -1,0 +1,218 @@
+﻿@{
+    Layout = "_LayoutAdmin";
+}
+
+@model List<TechShop.Models.CardDoHoa>
+<style>
+    .hide {
+        display: none !important;
+    }
+</style>
+
+<div class="p-3">
+    <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#orderDetailsModal">
+        <i class="bi bi-plus-circle-fill"></i> Thêm mới card đồ họa
+    </a>
+</div>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Tên</th>
+            <th scope="col">Giá</th>
+            <th scope="col">Quản lý</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr id="row-display-@item.CardDoHoaId">
+                <th scope="row">@item.CardDoHoaId</th>
+                <td>@item.TenCardDoHoa</td>
+                <td>@item.AdditionalPrice.ToString("N0")</td>
+                <td>
+                    <button onclick="EditCardDoHoa(@item.CardDoHoaId)"
+                            class="btn btn-warning btn-sm mt-3">
+                        <i class="bi bi-pencil-square"></i> Sửa
+                    </button>
+                    <button onclick="Delete(@item.CardDoHoaId)"
+                            class="btn btn-danger btn-sm mt-3">
+                        <i class="bi bi-trash"></i> Xóa
+                    </button>
+                </td>
+            </tr>
+            <tr id="row-edit-@item.CardDoHoaId" class="hide">
+                <th scope="row">@item.CardDoHoaId</th>
+                <td><input type="text" value="@item.TenCardDoHoa" name="TenCardDoHoa" class="form-control" /></td>
+                <td><input type="number" value="@item.AdditionalPrice" name="Price" class="form-control" /></td>
+                <td>
+                    <button onclick="SaveCardDoHoa(@item.CardDoHoaId)"
+                            class="btn btn-primary btn-sm mt-3">
+                        <i class="bi bi-check-circle"></i> Lưu
+                    </button>
+                    <button onclick="CancelEdit(@item.CardDoHoaId)"
+                            class="btn btn-warning btn-sm mt-3">
+                        <i class="bi bi-x-circle"></i> Hủy
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderDetailsModalLabel">Thêm mới card đồ họa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addCardDoHoaForm">
+                    <div class="mb-3">
+                        <label for="TenCardDoHoa" class="form-label">Tên Card Đồ Họa</label>
+                        <input type="text" class="form-control" id="TenCardDoHoa" name="TenCardDoHoa" placeholder="Nhập tên card đồ họa">
+                    </div>
+                    <div class="mb-3">
+                        <label for="AdditionalPrice" class="form-label">Giá Thêm</label>
+                        <input type="number" class="form-control" id="AdditionalPrice" name="AdditionalPrice" placeholder="Nhập giá thêm">
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="SaveNewCardDoHoa()">Lưu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+        function EditCardDoHoa(id) {
+            $('#row-display-' + id).addClass('hide');
+            $('#row-edit-' + id).removeClass('hide');
+        }
+
+        function CancelEdit(id) {
+            $('#row-edit-' + id).addClass('hide');
+            $('#row-display-' + id).removeClass('hide');
+        }
+
+        function SaveCardDoHoa(id) {
+            var tenCard = $('#row-edit-' + id).find('input[name="TenCardDoHoa"]').val();
+            var price = $('#row-edit-' + id).find('input[name="Price"]').val();
+
+            $.ajax({
+                url: '/Admin/Config/UpdateCardDoHoa',
+                type: 'POST',
+                data: { id: id, TenCardDoHoa: tenCard, AdditionalPrice: price },
+                success: function (response) {
+                    if (response.success) {
+                        alert('Cập nhật thành công!');
+                        $('#row-display-' + id).find('td:nth-child(2)').text(tenCard);
+                        $('#row-display-' + id).find('td:nth-child(3)').text(price.toLocaleString());
+                        CancelEdit(id);
+                    } else {
+                        alert('Lỗi: ' + response.message);
+                    }
+                },
+                error: function () {
+                    alert('Không thể lưu thông tin.');
+                }
+            });
+        }
+
+        function Delete(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa?')) {
+                $.ajax({
+                    url: '/Admin/Config/DeleteCardDoHoa',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function (response) {
+                        if (response.success) {
+                            alert('Xóa thành công!');
+                            $('#row-display-' + id).remove();
+                        } else {
+                            alert('Không thể xóa: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Đã xảy ra lỗi khi xóa.');
+                    }
+                });
+            }
+        }
+
+        function SaveNewCardDoHoa() {
+            var tenCard = $('#TenCardDoHoa').val();
+            var price = $('#AdditionalPrice').val();
+
+            if (!tenCard || !price) {
+                alert('Vui lòng nhập đủ thông tin!');
+                return;
+            }
+
+        $.ajax({
+            url: '/Admin/Config/AddCardDoHoa',
+            type: 'POST',
+            data: { TenCardDoHoa: tenCard, AdditionalPrice: price },
+            success: function (response) {
+                if (response.success) {
+                    alert('Thêm mới thành công!');
+
+                    // Kiểm tra và đảm bảo giá trị của AdditionalPrice hợp lệ
+                    var additionalPrice = response.data.AdditionalPrice;
+                    if (typeof additionalPrice === 'number' && !isNaN(additionalPrice)) {
+                        additionalPrice = additionalPrice.toLocaleString(); // Chuyển thành định dạng số
+                    } else {
+                        additionalPrice = 'Không xác định';
+                    }
+                       // Thêm dòng mới vào bảng
+
+                    // Đóng modal sau khi thêm thành công
+                    $('#orderDetailsModal').modal('hide');
+                    console.log(response.data);
+                    // Tạo một dòng mới trong bảng với dữ liệu vừa thêm
+                    var newRow = `
+                        <tr id="row-display-${response.data.cardDoHoaId
+    }">
+                                <th scope="row">${response.data.cardDoHoaId
+        }</th>
+                                <td>${response.data.tenCardDoHoa}</td>
+                            <td>${response.data.additionalPrice.ToString("N0")}</td>
+                            <td>
+                                <button onclick="EditCardDoHoa(${response.data.CardDoHoaId})" class="btn btn-warning btn-sm mt-3">
+                                    <i class="bi bi-pencil-square"></i> Sửa
+                                </button>
+                                <button onclick="Delete(${response.data.CardDoHoaId})" class="btn btn-danger btn-sm mt-3">
+                                    <i class="bi bi-trash"></i> Xóa
+                                </button>
+                            </td>
+                        </tr> 
+                        <tr id="row-edit-${response.data.cardDoHoaId}" class="hide">
+                            <th scope="row">${response.data.cardDoHoaId}</th>
+                            <td><input type="text" value="${response.data.tenCardDoHoa}" name="TenCardDoHoa" class="form-control" /></td>
+                            <td><input type="number" value="${response.data.additionalPrice}" name="Price" class="form-control" /></td>
+                            <td>
+                                <button onclick="SaveCardDoHoa(${response.data.cardDoHoaId})" class="btn btn-primary btn-sm mt-3">
+                                    <i class="bi bi-check-circle"></i> Lưu
+                                </button>
+                                <button onclick="CancelEdit(${response.data.cardDoHoaId})" class="btn btn-warning btn-sm mt-3">
+                                    <i class="bi bi-x-circle"></i> Hủy
+                                </button>
+                            </td>
+                        </tr>`;
+                    $('table tbody').append(newRow);
+
+
+                } else {
+                    alert('Không thể thêm mới: ' + response.message);
+                }
+            },
+            error: function () {
+                alert('Đã xảy ra lỗi khi thêm mới.');
+            }
+        });
+
+
+        }
+</script>
