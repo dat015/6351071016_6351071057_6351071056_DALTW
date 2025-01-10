@@ -56,6 +56,6 @@ namespace TechShop.Models
 
         public string Name { get; set; }
 
-
+        public ICollection<OrderDetail> orderDetails { get; set; }
     }
 }

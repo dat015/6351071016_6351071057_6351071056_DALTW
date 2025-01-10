@@ -19,9 +19,6 @@ namespace TechShop.Areas.Customer.Controllers
 {
     [Area("Customer")]
 
-
-
-
     public class UserController : Controller
     {
         private readonly ApplicationDbContext _db;
@@ -135,6 +132,7 @@ namespace TechShop.Areas.Customer.Controllers
                 ViewBag.Error = "Người dùng không tồn tại!";
                 return View("InputEmail");
             }
+         
 
             // Tạo mã OTP
             var otpCode = GenerateOTPCode();
@@ -302,14 +300,18 @@ namespace TechShop.Areas.Customer.Controllers
                 var customer = _db.User.FirstOrDefault(customer => customer.Email == model.Email);
                 if (customer == null)
                 {
-                    ModelState.AddModelError("Error", "Sai thông tin đăng nhập");
+                    ViewBag.Error = "Sai thông tin đăng nhập";
+                }
+                if (customer.IsLock)
+                {
+                    ViewBag.Error = "Tài khoản này đã bị khóa!";
                 }
 
                 else
                 {
                     if (customer.Password != model.Password.ToMd5Hash(customer.RandomKey))
                     {
-                        ModelState.AddModelError("Error", "Sai thông tin đăng nhập");
+                        ViewBag.Error =  "Sai thông tin đăng nhập";
                     }
                     else
                     {

@@ -33,6 +33,8 @@ namespace TechShop.Models
         [Required]
         public int RoleId { get; set; } 
 
+        public bool IsLock { get; set; } = false;
+
         public bool IsEmailConfirmed { get; set; } = false;
 
         [ForeignKey("RoleId")]

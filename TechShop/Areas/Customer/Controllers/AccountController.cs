@@ -8,7 +8,9 @@ using System.Diagnostics;
 using System.Security.Claims;
 using TechShop.Areas.Customer.ViewModel;
 using TechShop.Data;
+using TechShop.Helper;
 using TechShop.Models;
+using TechShop.Services.Mail;
 using TechShop.Utility;
 
 namespace TechShop.Areas.Customer.Controllers
@@ -262,6 +264,192 @@ namespace TechShop.Areas.Customer.Controllers
 
             // Return the relative path
             return "/img/" + uniqueFileName;
+        }
+        public string GenerateOTPCode(int length = 6)
+        {
+            var random = new Random();
+            string otp = string.Empty;
+
+            for (int i = 0; i < length; i++)
+            {
+                otp += random.Next(0, 10).ToString(); // Tạo số ngẫu nhiên từ 0-9
+            }
+
+            return otp;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SendOTP()
+        {
+            var user = await _db.User.FirstOrDefaultAsync(p => p.Id == (int)UserId);
+            if (user == null)
+            {
+                ViewBag.Error = "Người dùng không tồn tại!";
+                return RedirectToAction("InputOTP");
+            }
+
+            // Tạo mã OTP
+            var otpCode = GenerateOTPCode();
+
+
+            // Tạo đối tượng OTP
+            var otp = new OTP()
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                OtpCode = otpCode,
+                ExpirationTime = DateTime.Now.AddMinutes(5), // OTP hết hạn sau 5 phút
+            };
+
+            // Lưu OTP vào cơ sở dữ liệu
+            _db.OTPs.Add(otp);
+            await _db.SaveChangesAsync();
+
+            // Gửi OTP qua email
+            try
+            {
+                SendMail.SendEmail(
+                    user.Email,
+                    "Mã OTP xác nhận",
+                    $"Mã OTP của bạn là: <strong>{otpCode}</strong>. Mã này sẽ hết hạn sau 5 phút.",
+                    ""
+                );
+                ViewBag.Success = "Mã OTP đã được gửi tới email của bạn!";
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = $"Lỗi khi gửi email: {ex.Message}";
+                return RedirectToAction("InputOTP");
+            }
+            ViewBag.Email = user.Email;
+            return RedirectToAction("InputOTP");
+        }
+        public bool ValidateOTP(string otpCode)
+        {
+            var user = _db.User.FirstOrDefault(p => p.Id == (int)UserId);
+
+            // Tìm OTP theo email và mã OTP
+            var otp = _db.OTPs.AsNoTracking().FirstOrDefault(o => o.Email == user.Email && o.OtpCode == otpCode);
+
+            // Kiểm tra OTP hợp lệ và chưa hết hạn
+            if (otp != null && otp.ExpirationTime >= DateTime.Now)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        [HttpPost]
+        public IActionResult VerifyOTP(string otpCode)
+        {
+            if (ValidateOTP(otpCode))
+            {
+                ViewBag.Success = "Xác thực OTP thành công!";
+                return View("InputNewPassword");
+            }
+            else
+            {
+                ViewBag.Error = "Mã OTP không hợp lệ hoặc đã hết hạn.";
+                return RedirectToAction("InputOTP");
+            }
+        }
+
+        public IActionResult InputOTP()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<ActionResult> ChangePassword(ChangePasswordVM model)
+        {
+
+
+            // Kiểm tra UserId
+            if (UserId == null)
+            {
+                TempData["Error"] = "Không thể xác định người dùng. Vui lòng đăng nhập lại.";
+                return RedirectToAction("Index");
+            }
+
+            // Kiểm tra dữ liệu nhập
+            if (model == null || string.IsNullOrEmpty(model.NewPassword) || string.IsNullOrEmpty(model.ConfirmPassword))
+            {
+                TempData["Error"] = "Dữ liệu nhập không hợp lệ.";
+                return RedirectToAction("Index");
+            }
+
+            if (model.ConfirmPassword != model.NewPassword)
+            {
+                TempData["Error"] = "Mật khẩu xác nhận không khớp.";
+                return RedirectToAction("Index");
+            }
+
+            try
+            {
+                // Tìm người dùng
+                var user = await _db.User.FirstOrDefaultAsync(u => u.Id == (int)UserId);
+                if (user == null)
+                {
+                    TempData["Error"] = "Không tìm thấy người dùng.";
+                    return RedirectToAction("Index");
+                }
+
+                var crrPass = model.CurrentPassword.ToMd5Hash(user.RandomKey);
+                if (crrPass != user.Password)
+                {
+                    TempData["Error"] = "Mật khẩu không khớp mật khẩu hiện tại.";
+                    return RedirectToAction("Index");
+                }
+
+                // Đổi mật khẩu
+                user.Password = model.NewPassword.ToMd5Hash(user.RandomKey);
+                await _db.SaveChangesAsync();
+
+                TempData["Success"] = "Đổi mật khẩu thành công.";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Đã xảy ra lỗi: {ex.Message}";
+                return RedirectToAction("Index");
+            }
+        }
+        [HttpPost]
+        public async Task<ActionResult> ChangePasswordByOTP(ChangePasswordVM model)
+        {
+
+
+            if (model == null || string.IsNullOrEmpty(model.NewPassword) || string.IsNullOrEmpty(model.ConfirmPassword))
+            {
+                TempData["Error"] = "Không tìm thấy dữ liệu nhập";
+                return View("InputNewPassword");
+            }
+
+            if (model.ConfirmPassword != model.NewPassword)
+            {
+                ViewBag.Error = "Mật khẩu xác nhận phải giống mật khẩu nhập vào";
+
+                return View("InputNewPassword");
+            }
+
+            try
+            {
+                var user = await _db.User.FirstOrDefaultAsync(u => u.Id == (int)UserId);
+                if (user == null)
+                {
+                    TempData["Error"] = "Không tìm thấy người dùng";
+                    return View("InputNewPassword");
+                }
+
+                user.Password = model.NewPassword.ToMd5Hash(user.RandomKey);
+                await _db.SaveChangesAsync();
+                TempData["Success"] = "Đổi mật khẩu thành công.";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Đã xảy ra lỗi: {ex.Message}";
+                return RedirectToAction("Index");
+            }
         }
 
 

@@ -36,60 +36,77 @@ namespace TechShop.Areas.Admin.Controllers
             return View(orderVM);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Delete(int OrderId)
+       
+
+        public async Task<IActionResult> LoadPartial(string partialName)
         {
-            try
+            var orders = await _db.Orders.ToListAsync();
+            switch (partialName)
             {
-                Console.WriteLine("ok");
-                var order = await _db.Orders.FirstOrDefaultAsync(o => o.OrderId == OrderId);
-
-                if (order == null)
-                {
-                    return Json(new { success = false, message = "Không tìm thấy đơn hàng cần xóa." });
-                }
-
-                _db.Orders.Remove(order);
-                await _db.SaveChangesAsync();
-
-                var orders = await GetOrder();
-                return Json(new { success = true, orders = orders.orders });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Đã xảy ra lỗi khi xóa.", error = ex.Message });
+                case "TatCa":
+                    return PartialView("_TatCaPartial",orders);
+                case "ChoXacNhan":
+                    orders = orders.Where(o => o.isAccept == false).ToList();
+                    return PartialView("_ChoXacNhanPartial",orders);
+                case "DangGiao":
+                    orders = orders.Where(o => o.isAccept == true).ToList();
+                    return PartialView("_DangGiaoPartial",orders);
+                case "DaGiao":
+                    orders = orders.Where(o => o.StatusShipping == "2").ToList();
+                    return PartialView("_DaGiaoPartial",orders);
+                default:
+                    return PartialView("_TatCaPartial",orders);
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(int id, string statusPayment, string statusShipping, string Note)
+        public async Task<IActionResult> ApproveOrder(int orderId)
         {
-            if(statusPayment == "" || statusShipping == "" || Note == "")
+            var order = await _db.Orders.FindAsync(orderId);
+            if (order == null)
             {
-                return Json(new { success = false, message = "Dữ liệu không hợp lệ!"});
+                return NotFound();
             }
-            try
-            {
-                var order = await _db.Orders.FindAsync(id);
-                if (order == null) { 
-                    return Json(new { success = false,  message = "Không tìm thấy đơn hàng cần cập nhật." });
-                }
 
-                order.StatusPayment = statusPayment;
-                order.StatusShipping = statusShipping;
-                order.Note = Note;
+            order.isAccept = true;
+            _db.Orders.Update(order);
+            await _db.SaveChangesAsync();
 
-                await _db.SaveChangesAsync();
-
-                var orders = await GetOrder();
-                return Json(new { success = true, orders = orders.orders });
-            }
-            catch (Exception ex) {
-                return Json(new { success = false, message = "Đã xảy ra lỗi khi cập nhật.", error = ex.Message });
-            }
+            return Ok();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CancelOrder(int orderId)
+        {
+            var order = await _db.Orders.FindAsync(orderId);
+            if (order == null)
+            {
+                return NotFound();
+            }
 
+            _db.Orders.Remove(order);
+            await _db.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        public async Task<IActionResult> OrderDetails(int orderId)
+        {
+            var order = await _db.Orders
+                .Include(o => o.user)
+                .Include(o => o.PaymentMethod)
+                .Include(o => o.orderDetails)
+                    .ThenInclude(od => od.Specs)
+                    .ThenInclude(od => od.Product)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            return View(order);
+        }
 
     }
 }

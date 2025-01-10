@@ -234,21 +234,9 @@
 
                 <div class="tab-pane fade" id="account-change-password">
                     <form asp-action="ChangePassword" asp-area="Customer" asp-asp-controller="Account" method="post">
-                        @Html.AntiForgeryToken()
 
                         <div class="card-body pb-2">
-                            @if (TempData["Success"] != null)
-                            {
-                                <div class="alert alert-success">
-                                    <strong>@TempData["Success"]</strong>
-                                </div>
-                            }
-                            @if (TempData["Error"] != null)
-                            {
-                                <div class="alert alert-danger">
-                                    <strong>@TempData["Error"]</strong>
-                                </div>
-                            }
+
                             <div class="form-group">
                                 <label class="form-label">Mật khẩu cũ</label>
                                 <input type="password" name="CurrentPassword" class="form-control">
@@ -259,10 +247,10 @@
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Nhập lại mật khẩu mới</label>
-                                <input type="password" name="RepeatPassword" class="form-control">
+                                <input type="password" name="ConfirmPassword" class="form-control">
                             </div>
                             <div class="form-group">
-                                <a href="@Url.Action("ConfirmOtp", "Account", new { model = @Model })" style="text-decoration:none;">Quên mật khẩu</a>
+                                <a href="@Url.Action("SendOTP", "Account")" style="text-decoration:none;">Quên mật khẩu</a>
                             </div>
                         </div>
                         <div class="text-right">

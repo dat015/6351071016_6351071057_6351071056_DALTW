@@ -150,6 +150,12 @@ namespace TechShop.Areas.Admin.Controllers
                 // Gán giá trị mới cho productVm
                 productVm.Specs = new Lazy<Task<List<Specs>>>(() => Task.FromResult(filteredSpecs));
 
+                var reviews = _db.Reviews
+                                 .Where(r => r.ProductId == id)
+                                 .Include(r => r.User)
+                                 .ToList();
+                productVm.reviews = new Lazy<Task<List<Review>>>(() => Task.FromResult(reviews));
+
                 // Trả về Partial View với thông tin mới
                 return PartialView("PartialProduct", productVm);
             }
@@ -158,6 +164,27 @@ namespace TechShop.Areas.Admin.Controllers
                 Debug.WriteLine(ex.Message);
                 ViewBag.Error = ex.Message;
                 return RedirectToAction("Index");
+            }
+        }
+        [HttpPost]
+        public IActionResult DeleteReview(int id)
+        {
+            try
+            {
+                var review = _db.Reviews.Find(id);
+                if (review == null)
+                {
+                    return Json(new { success = false, message = "Đánh giá không tồn tại." });
+                }
+
+                _db.Reviews.Remove(review);
+                _db.SaveChanges();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Đã xảy ra lỗi khi xóa đánh giá." });
             }
         }
 
@@ -550,6 +577,7 @@ namespace TechShop.Areas.Admin.Controllers
 
 
 
+       
 
 
     }

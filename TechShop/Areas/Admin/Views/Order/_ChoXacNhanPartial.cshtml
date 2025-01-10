@@ -1,0 +1,67 @@
+﻿
+@model IEnumerable<TechShop.Models.Order>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Mã đơn hàng</th>
+            <th>Người đặt</th>
+            <th>Trạng thái thanh toán</th>
+            <th>Tổng tiền</th>
+            <th>Ngày đặt</th>
+            <th>Đơn hàng</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr id="order-@order.OrderId">
+                <td>@order.OrderId</td>
+                <td>@order.Name</td>
+                <td>@order.StatusPayment</td>
+                <td>@order.TotalAmount.ToString("N0")</td>
+                <td>@order.OrderDate</td>
+                <td>
+                    <button class="btn btn-info" onclick="viewOrderDetails(@order.OrderId)">Chi tiết</button>
+                </td>
+                <td style="display: flex">
+                    <button class="btn btn-info" onclick="approveOrder(@order.OrderId)">Duyệt đơn</button>
+                    <button class="btn btn-danger" onclick="cancelOrder(@order.OrderId)">Hủy đơn</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function approveOrder(orderId) {
+        $.ajax({
+            url: '@Url.Action("ApproveOrder", "Order")',
+            type: 'POST',
+            data: { orderId: orderId },
+            success: function () {
+                alert('Đơn hàng đã được duyệt.');
+                $('#order-' + orderId).remove(); // Xóa hàng khỏi DOM
+            },
+            error: function () {
+                alert('Không thể duyệt đơn hàng.');
+            }
+        });
+    }
+
+    function cancelOrder(orderId) {
+        $.ajax({
+            url: '@Url.Action("CancelOrder", "Order")',
+            type: 'POST',
+            data: { orderId: orderId },
+            success: function () {
+                alert('Đơn hàng đã bị hủy.');
+                $('#order-' + orderId).remove(); // Xóa hàng khỏi DOM
+            },
+            error: function () {
+                alert('Không thể hủy đơn hàng.');
+            }
+        });
+    }
+</script>

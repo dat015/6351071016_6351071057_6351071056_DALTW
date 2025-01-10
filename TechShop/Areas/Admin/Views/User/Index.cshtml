@@ -1,0 +1,165 @@
+﻿
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Họ và tên</th>
+            <th>Email</th>
+            <th>Số điện thoại</th>
+            <th>Quản lý</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            <tr id="row-display-@user.Id">
+                <td>@user.Id</td>
+                <td>@user.Name</td>
+                <td>@user.Email</td>
+                <td>@user.PhoneNumber</td>
+                <td>
+                    <button onclick="DetailUser(@user.Id)" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#userDetailModal">
+                        <i class="bi bi-pencil-square"></i> Chi tiết
+                    </button>
+                    @if (user.IsLock)
+                    {
+                        <button onclick="UnLockUser(@user.Id)" class="btn btn-danger btn-sm">
+                            <i class="bi bi-unlock"></i>Mở khóa
+                        </button>
+                    }
+                    else
+                    {
+                        <button onclick="LockUser(@user.Id)" class="btn btn-danger btn-sm">
+                            <i class="bi bi-lock-fill"></i> Khóa
+                        </button>
+                    }
+
+                </td>
+            </tr>
+
+        }
+    </tbody>
+</table>
+
+<!-- Modal thêm mới User -->
+
+<!-- Modal chi tiết User -->
+<div class="modal fade" id="userDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết người dùng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="userDetailBody">
+                <!-- Nội dung chi tiết người dùng sẽ được tải ở đây -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal chi tiết hóa đơn -->
+<div class="modal fade" id="invoiceDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết hóa đơn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="invoiceDetailBody">
+                <!-- Nội dung chi tiết hóa đơn sẽ được tải ở đây -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function DetailUser(userId) {
+        $.ajax({
+            url: '@Url.Action("GetUserDetails", "User")',
+            type: 'GET',
+            data: { id: userId },
+            success: function (data) {
+                $('#userDetailBody').html(data);
+            },
+            error: function () {
+                alert('Không thể tải dữ liệu người dùng');
+            }
+        });
+    }
+
+    function DetailInvoice(invoiceId) {
+        $.ajax({
+            url: '@Url.Action("GetInvoiceDetails", "User")',
+            type: 'GET',
+            data: { id: invoiceId },
+            success: function (data) {
+                $('#invoiceDetailBody').html(data);
+                $('#invoiceDetailModal').modal('show');
+            },
+            error: function () {
+                alert('Không thể tải dữ liệu hóa đơn');
+            }
+        });
+    }
+
+        function LockUser(userId) {
+        if (confirm("Bạn có chắc chắn muốn khóa người dùng này?")) {
+            $.ajax({
+                url: '/Admin/User/LockUser', // Đường dẫn đến action LockUser
+                type: 'POST',
+                data: { userId: userId },
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                        // Cập nhật giao diện
+                        $('#row-display-' + userId).find('td:last').html(`
+                            <button onclick="DetailUser(${userId})" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#userDetailModal">
+                                <i class="bi bi-pencil-square"></i> Chi tiết
+                            </button>
+                            <button onclick="UnLockUser(${userId})" class="btn btn-danger btn-sm">
+                                <i class="bi bi-unlock"></i> Mở khóa
+                            </button>
+                        `);
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert("Đã xảy ra lỗi khi khóa người dùng.");
+                }
+            });
+        }
+    }
+
+    function UnLockUser(userId) {
+        if (confirm("Bạn có chắc chắn muốn mở khóa người dùng này?")) {
+            $.ajax({
+                url: '/Admin/User/UnlockUser', // Đường dẫn đến action UnlockUser
+                type: 'POST',
+                data: { userId: userId },
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                        // Cập nhật giao diện
+                        $('#row-display-' + userId).find('td:last').html(`
+                            <button onclick="DetailUser(${userId})" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#userDetailModal">
+                                <i class="bi bi-pencil-square"></i> Chi tiết
+                            </button>
+                            <button onclick="LockUser(${userId})" class="btn btn-danger btn-sm">
+                                <i class="bi bi-lock-fill"></i> Khóa
+                            </button>
+                        `);
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert("Đã xảy ra lỗi khi mở khóa người dùng.");
+                }
+            });
+        }
+    }
+
+</script>

@@ -10,6 +10,9 @@
 <a class="btn btn-primary btn-sm mt-3" id="add">
     <i class="bi bi-plus-circle-fill"></i> Thêm cấu hình
 </a>
+<a class="btn btn-primary btn-sm mt-3" id="viewReviews">
+    <i class="bi bi-eye"></i> Xem đánh giá
+</a>
 <a class="btn btn-primary btn-sm mt-3 hide" id="back">
     <i class="bi bi-plus-circle-fill"></i> Quay lại
 </a>
@@ -230,6 +233,44 @@
     <button type="submit" class="btn btn-primary">Thêm cấu hình</button>
 </form>
 
+<div class="hide" id="reviews">
+    @if (await Model.reviews.Value == null)
+    {
+        <h2>Chưa có đánh giá</h2>
+    }
+    else
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Người đánh giá</th>
+                    <th>Số sao</th>
+                    <th>Bình luận</th>
+                    <th>Ngày đánh giá</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var review in await Model.reviews.Value)
+                {
+                    <tr id="review-@review.ReviewId">
+                        <td>@review.User.Email</td>
+                        <td>@review.Rating</td>
+                        <td>@review.Comment</td>
+                        <td>@review.ReviewDate.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <button class="btn btn-danger" onclick="DeleteReview(@review.ReviewId)">
+                                Xóa
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    }
+</div>
+
 
 
 
@@ -335,13 +376,14 @@
             // Hiện nút "Quay lại" và form
             $("#back, #addProductForm").removeClass("hide");
         });
-
+          $("#viewReviews").on("click", function() {
+            $("#table_Product, #viewReviews, #add").addClass("hide");
+            $("#back, #reviews").removeClass("hide");
+        });
         // Khi nhấn nút "Quay lại"
-        $("#back").on("click", function () {
-            // Hiện bảng và nút "Thêm cấu hình"
-            $("#table_Product, #add").removeClass("hide");
-            // Ẩn nút "Quay lại" và form
-            $("#back, #addProductForm").addClass("hide");
+      $("#back").on("click", function() {
+            $("#table_Product, #viewReviews, #add").removeClass("hide");
+            $("#back, #addProductForm, #reviews").addClass("hide");
         });
 
         // Khi nhấn nút Hủy
@@ -433,5 +475,29 @@
             }
         });
     }
+
+        function DeleteReview(id) {
+        if (confirm("Bạn có chắc chắn muốn xóa đánh giá này không?")) {
+            $.ajax({
+                url: '/Admin/Product/DeleteReview', // Đường dẫn đến action xử lý xóa
+                type: 'POST',
+                data: { id: id },
+                success: function (response) {
+                    if (response.success) {
+                        // Xóa dòng review trên giao diện
+                        $("#review-" + id).remove();
+                        alert("Xóa đánh giá thành công!");
+                    } else {
+                        alert("Không thể xóa đánh giá: " + response.message);
+                    }
+                },
+                error: function (xhr) {
+                    console.error("Lỗi khi xóa đánh giá:", xhr.responseText);
+                    alert("Có lỗi xảy ra. Vui lòng thử lại sau.");
+                }
+            });
+        }
+    }
+
 </script>
 

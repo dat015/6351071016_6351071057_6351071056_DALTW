@@ -1,7 +1,181 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-    Layout = "_Layout"; 
+﻿@{
+    Layout = "_LayoutAdmin";
 }
+
 @model List<TechShop.Models.CPU>
+
+<style>
+    .hide {
+        display: none !important;
+    }
+</style>
+
+<div class="p-3">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cpuModal">
+        <i class="bi bi-plus-circle-fill"></i> Thêm mới CPU
+    </button>
+</div>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Tên CPU</th>
+            <th>Giá</th>
+            <th>Quản lý</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cpu in Model)
+        {
+            <tr  id="row-display-@cpu.CPUId">
+                <td>@cpu.CPUId</td>
+                <td>@cpu.TenCPU</td>
+                <td>@cpu.AdditionalPrice.ToString("N0")</td>
+                <td>
+                    <button onclick="Edit(@cpu.CPUId)" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil-square"></i> Sửa
+                    </button>
+                    <button onclick="deleteCPU(@cpu.CPUId)" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash"></i> Xóa
+                    </button>
+                </td>
+            </tr>
+            <tr id="row-edit-@cpu.CPUId" class="hide">
+                <td>@cpu.CPUId</td>
+                <td><input type="text" value="@cpu.TenCPU" class="form-control" /></td>
+                <td><input type="number" value="@cpu.AdditionalPrice" class="form-control" /></td>
+                <td>
+                    <button onclick="saveCPU(@cpu.CPUId)" class="btn btn-primary btn-sm">
+                        <i class="bi bi-check-circle"></i> Lưu
+                    </button>
+                    <button onclick="CancelEdit(@cpu.CPUId)" class="btn btn-warning btn-sm">
+                        <i class="bi bi-x-circle"></i> Hủy
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal thêm mới CPU -->
+<div class="modal fade" id="cpuModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm mới CPU</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addCPUForm">
+                    <div class="mb-3">
+                        <label for="TenCPU" class="form-label">Tên CPU</label>
+                        <input type="text" class="form-control" id="TenCPU" placeholder="Nhập tên CPU" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="AdditionalPrice" class="form-label">Giá thêm</label>
+                        <input type="number" class="form-control" id="AdditionalPrice" placeholder="Nhập giá thêm" />
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="addCPU()">Thêm mới</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<script>
+   
+
+    
+
+    function saveCPU(id) {
+        const rowEdit = document.getElementById(`row-edit-${id}`);
+        const tenCPU = rowEdit ? rowEdit.querySelector('input[type="text"]').value : null;
+        const price = rowEdit ? rowEdit.querySelector('input[type="number"]').value : null;
+
+
+        if (tenCPU !== null && price !== null) {
+            $.post('/Admin/Config/UpdateCPU', { id, tenCPU, additionalPrice: price }, function (response) {
+                if (response.success) {
+                    alert('Cập nhật thành công!');
+                    const rowDisplay = document.getElementById(`row-display-${id}`);
+                    if (rowDisplay) {
+                        rowDisplay.querySelector('td:nth-child(2)').textContent = tenCPU;
+                        rowDisplay.querySelector('td:nth-child(3)').textContent = parseInt(price).toLocaleString();
+                    }
+                    CancelEdit(id);
+                } else {
+                    alert('Lỗi: ' + response.message);
+                }
+            }).fail(() => alert('Đã xảy ra lỗi!'));
+        }
+    }
+
+    function deleteCPU(id) {
+        if (confirm('Bạn có chắc chắn muốn xóa CPU này?')) {
+            $.post('/Admin/Config/DeleteCPU', { id }, function (response) {
+                if (response.success) {
+                    alert('Xóa thành công!');
+                    const rowDisplay = document.getElementById(`row-display-${id}`);
+                    const rowEdit = document.getElementById(`row-edit-${id}`);
+                    if (rowDisplay) rowDisplay.remove();
+                    if (rowEdit) rowEdit.remove();
+                } else {
+                    alert('Lỗi: ' + response.message);
+                }
+            }).fail(() => alert('Đã xảy ra lỗi!'));
+        }
+    }
+
+    function addCPU() {
+        const tenCPU = $('#TenCPU').val();
+        const price = $('#AdditionalPrice').val();
+
+        if (!tenCPU || !price) {
+            alert('Vui lòng nhập đầy đủ thông tin!');
+            return;
+        }
+
+        $.post('/Admin/Config/AddCPU', { tenCPU, additionalPrice: price }, function (response) {
+            if (response.success) {
+                alert('Thêm mới thành công!');
+                $('#cpuModal').modal('hide');
+
+                const newCPU = `
+                    <tr id="row-display-${response.data.cpuId}">
+                        <td>${response.data.cpuId}</td>
+                        <td>${response.data.tenCPU}</td>
+                        <td>${parseInt(response.data.additionalPrice).toLocaleString()}</td>
+                        <td>
+                            <button onclick="Edit(${response.data.cpuId})" class="btn btn-warning btn-sm">
+                                <i class="bi bi-pencil-square"></i> Sửa
+                            </button>
+                            <button onclick="deleteCPU(${response.data.cpuId})" class="btn btn-danger btn-sm">
+                                <i class="bi bi-trash"></i> Xóa
+                            </button>
+                        </td>
+                    </tr>
+                    <tr id="row-edit-${response.data.cpuId}" class="hide">
+                        <td>${response.data.cpuId}</td>
+                        <td><input type="text" value="${response.data.tenCPU}" class="form-control" /></td>
+                        <td><input type="number" value="${response.data.additionalPrice}" class="form-control" /></td>
+                        <td>
+                            <button onclick="saveCPU(${response.data.cpuId})" class="btn btn-primary btn-sm">
+                                <i class="bi bi-check-circle"></i> Lưu
+                            </button>
+                            <button onclick="CancelEdit(${response.data.cpuId})" class="btn btn-warning btn-sm">
+                                <i class="bi bi-x-circle"></i> Hủy
+                            </button>
+                        </td>
+                    </tr>`;
+
+                $('tbody').append(newCPU);
+            } else {
+                alert('Lỗi: ' + response.message);
+            }
+        }).fail(() => alert('Đã xảy ra lỗi!'));
+    }
+</script>

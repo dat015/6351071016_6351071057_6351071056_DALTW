@@ -13,7 +13,7 @@ namespace TechShop.Areas.Admin.Models
         public Lazy<Task<List<CardDoHoa>>> CardDoHoas { get; set; }
         public Lazy<Task<List<Pin>>> Pins { get; set; }
         public Lazy<Task<List<TrongLuong>>> trongLuongs { get; set; }
-
+        public Lazy<Task<List<Review>>> reviews { get; set; }
         public Lazy<Task<List<RAM>>> RAMs { get; set; }
         public Lazy<Task<List<Brand>>> Brands { get; set; }
 

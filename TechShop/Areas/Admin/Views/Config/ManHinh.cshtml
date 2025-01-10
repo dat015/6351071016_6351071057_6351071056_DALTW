@@ -1,5 +1,179 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    Layout = "_LayoutAdmin";
 }
+
+@model List<TechShop.Models.ManHinh>
+
+<style>
+    .hide {
+        display: none !important;
+    }
+</style>
+
+<div class="p-3">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#manHinhModal">
+        <i class="bi bi-plus-circle-fill"></i> Thêm mới màn hình
+    </button>
+</div>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Kích thước màn hình</th>
+            <th>Giá</th>
+            <th>Quản lý</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var manHinh in Model)
+        {
+            <tr id="row-display-@manHinh.ManHinhId">
+                <td>@manHinh.ManHinhId</td>
+                <td>@manHinh.KichThuocManHinh</td>
+                <td>@manHinh.AdditionalPrice.ToString("N0")</td>
+                <td>
+                    <button onclick="Edit(@manHinh.ManHinhId)" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil-square"></i> Sửa
+                    </button>
+                    <button onclick="deleteManHinh(@manHinh.ManHinhId)" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash"></i> Xóa
+                    </button>
+                </td>
+            </tr>
+            <tr id="row-edit-@manHinh.ManHinhId" class="hide">
+                <td>@manHinh.ManHinhId</td>
+                <td><input type="text" value="@manHinh.KichThuocManHinh" class="form-control" /></td>
+                <td><input type="number" value="@manHinh.AdditionalPrice" class="form-control" /></td>
+                <td>
+                    <button onclick="saveManHinh(@manHinh.ManHinhId)" class="btn btn-primary btn-sm">
+                        <i class="bi bi-check-circle"></i> Lưu
+                    </button>
+                    <button onclick="CancelEdit(@manHinh.ManHinhId)" class="btn btn-warning btn-sm">
+                        <i class="bi bi-x-circle"></i> Hủy
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal thêm mới màn hình -->
+<div class="modal fade" id="manHinhModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm mới màn hình</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addManHinhForm">
+                    <div class="mb-3">
+                        <label for="KichThuoc" class="form-label">Kích thước màn hình</label>
+                        <input type="text" class="form-control" id="KichThuoc" placeholder="Nhập kích thước màn hình" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Gia" class="form-label">Giá</label>
+                        <input type="number" class="form-control" id="Gia" placeholder="Nhập giá" />
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="addManHinh()">Thêm mới</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+ 
+
+  
+
+    function saveManHinh(id) {
+        const rowEdit = document.getElementById(`row-edit-${id}`);
+        const kichThuoc = rowEdit ? rowEdit.querySelector('input[type="text"]').value : null;
+        const gia = rowEdit ? rowEdit.querySelector('input[type="number"]').value : null;
+
+        if (kichThuoc !== null && gia !== null) {
+            $.post('/Admin/Config/UpdateManHinh', { id, kichThuocManHinh: kichThuoc, additionalPrice: gia }, function (response) {
+                if (response.success) {
+                    alert('Cập nhật thành công!');
+                    const rowDisplay = document.getElementById(`row-display-${id}`);
+                    if (rowDisplay) {
+                        rowDisplay.querySelector('td:nth-child(2)').textContent = kichThuoc;
+                        rowDisplay.querySelector('td:nth-child(3)').textContent = parseInt(gia).toLocaleString();
+                    }
+                    CancelEdit(id);
+                } else {
+                    alert('Lỗi: ' + response.message);
+                }
+            }).fail(() => alert('Đã xảy ra lỗi!'));
+        }
+    }
+
+    function deleteManHinh(id) {
+        if (confirm('Bạn có chắc chắn muốn xóa màn hình này?')) {
+            $.post('/Admin/Config/DeleteManHinh', { id }, function (response) {
+                if (response.success) {
+                    alert('Xóa thành công!');
+                    const rowDisplay = document.getElementById(`row-display-${id}`);
+                    const rowEdit = document.getElementById(`row-edit-${id}`);
+                    if (rowDisplay) rowDisplay.remove();
+                    if (rowEdit) rowEdit.remove();
+                } else {
+                    alert('Lỗi: ' + response.message);
+                }
+            }).fail(() => alert('Đã xảy ra lỗi!'));
+        }
+    }
+
+    function addManHinh() {
+        const kichThuoc = $('#KichThuoc').val();
+        const gia = $('#Gia').val();
+
+        if (!kichThuoc || !gia) {
+            alert('Vui lòng nhập đầy đủ thông tin!');
+            return;
+        }
+
+        $.post('/Admin/Config/AddManHinh', { kichThuocManHinh: kichThuoc, additionalPrice: gia }, function (response) {
+            if (response.success) {
+                alert('Thêm mới thành công!');
+                $('#manHinhModal').modal('hide');
+
+                const newManHinh = `
+                    <tr id="row-display-${response.data.manHinhId}">
+                        <td>${response.data.manHinhId}</td>
+                        <td>${response.data.kichThuocManHinh}</td>
+                        <td>${parseInt(response.data.AdditionalPrice).toLocaleString()}</td>
+                        <td>
+                            <button onclick="Edit(${response.data.manHinhId})" class="btn btn-warning btn-sm">
+                                <i class="bi bi-pencil-square"></i> Sửa
+                            </button>
+                            <button onclick="deleteManHinh(${response.data.manHinhId})" class="btn btn-danger btn-sm">
+                                <i class="bi bi-trash"></i> Xóa
+                            </button>
+                        </td>
+                    </tr>
+                    <tr id="row-edit-${response.data.manHinhId}" class="hide">
+                        <td>${response.data.manHinhId}</td>
+                        <td><input type="text" value="${response.data.kichThuocManHinh}" class="form-control" /></td>
+                        <td><input type="number" value="${response.data.additionalPrice}" class="form-control" /></td>
+                        <td>
+                            <button onclick="saveManHinh(${response.data.manHinhId})" class="btn btn-primary btn-sm">
+                                <i class="bi bi-check-circle"></i> Lưu
+                            </button>
+                            <button onclick="CancelEdit(${response.data.manHinhId})" class="btn btn-warning btn-sm">
+                                <i class="bi bi-x-circle"></i> Hủy
+                            </button>
+                        </td>
+                    </tr>`;
+
+                $('tbody').append(newManHinh);
+            } else {
+                alert('Lỗi: ' + response.message);
+            }
+        }).fail(() => alert('Đã xảy ra lỗi!'));
+    }
+</script>

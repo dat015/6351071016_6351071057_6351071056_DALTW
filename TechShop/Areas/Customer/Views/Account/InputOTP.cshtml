@@ -2,7 +2,7 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    Layout = "_Layout";
+    Layout = "_Layout"; 
 }
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
@@ -20,8 +20,15 @@
 <div class="small-container">
 
 
-
-    <form asp-action="VerifyOTP" asp-controller="User" asp-area="Customer" method="post">
+    @if (ViewBag.Success != null)
+    {
+        <div class="alert alert-success">@ViewBag.Success</div>
+    }
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">@ViewBag.Error</div>
+    }
+    <form asp-action="VerifyOTP" asp-controller="Account" asp-area="Customer" method="post">
         @if (ViewBag.Success != null)
         {
             <div class="alert alert-success">@ViewBag.Success</div>
@@ -35,11 +42,10 @@
             <label for="exampleInputEmail1">Nhập mã OTP để xác nhận tài khoản</label>
 
             <input type="text" value="" name="otpCode" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter your OTP">
-            <input type="hidden" value="@ViewBag.Email" name="email" />
             <button type="submit" class="btn btn-primary">Submit</button>
 
         </div>
     </form>
 
-  
+   
 </div>

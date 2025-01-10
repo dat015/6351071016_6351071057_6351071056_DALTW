@@ -1,0 +1,128 @@
+﻿@model TechShop.Models.Order
+
+@{
+    ViewData["Title"] = "Chi tiết hóa đơn";
+    Layout = "_LayoutAdmin";
+}
+
+<style>
+    .order-details-container {
+        max-width: 900px;
+        margin: auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+        .order-details-container h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+    .order-info, .product-info {
+        margin-bottom: 30px;
+    }
+
+        .order-info h4, .product-info h4 {
+            color: #007bff;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+            font-size: 22px;
+        }
+
+        .order-info p, .product-info p {
+            font-size: 16px;
+            color: #555;
+            margin: 5px 0;
+        }
+
+            .order-info p span, .product-info p span {
+                font-weight: bold;
+                color: #333;
+            }
+
+        .product-info table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .product-info th, .product-info td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .product-info th {
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+        }
+
+        .product-info td {
+            font-size: 14px;
+        }
+
+        .product-info tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .product-info .total-amount {
+            font-weight: bold;
+            font-size: 16px;
+            text-align: right;
+        }
+</style>
+
+<div class="order-details-container">
+    <h2>Chi tiết hóa đơn</h2>
+
+    <div class="order-info">
+        <h4>Thông tin đơn hàng</h4>
+        <p><span>Mã đơn hàng:</span> @Model.OrderId</p>
+        <p><span>Người đặt:</span> @Model.Name</p>
+        <p><span>Số điện thoại:</span> @Model.phoneNumber</p>
+        <p><span>Địa chỉ:</span> @Model.address, @Model.ward, @Model.district, @Model.provice</p>
+        <p><span>Ngày đặt:</span> @Model.OrderDate.ToString("dd/MM/yyyy")</p>
+        <p><span>Trạng thái thanh toán:</span> @Model.StatusPayment</p>
+        <p><span>Trạng thái giao hàng:</span> @Model.StatusShipping</p>
+        <p><span>Tổng tiền:</span> @Model.TotalAmount.ToString("N0") VND</p>
+    </div>
+
+    <div class="product-info">
+        <h4>Thông tin sản phẩm</h4>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Mã sản phẩm</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var detail in Model.orderDetails)
+                {
+                    <tr>
+                        <td>@detail.specId</td>
+                        <td>@detail.Specs.Product.ProductName</td>
+                        <td>@detail.Quantity</td>
+                        <td>@detail.Specs.Price.ToString("N0") VND</td>
+                        <td>@detail.UnitPrice.ToString("N0") VND</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" class="total-amount">Tổng cộng:</td>
+                    <td class="total-amount">@Model.TotalAmount.ToString("N0") VND</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

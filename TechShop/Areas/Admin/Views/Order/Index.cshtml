@@ -1,79 +1,87 @@
-﻿@model TechShop.ViewModel.OrderVM;
-@{
+﻿@{
+    Layout = "_LayoutAdmin";
 }
 
-<table class="table table-hover">
-    <div class="p-3">
-        <h2>MANAGE ORDER</h2>
 
-    </div>
-    <thead>
-        <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Status Payment</th>
-            <th scope="col">Status Shipping</th>
-            <th scope="col">Note</th>
-            <th scope="col">Order Date</th>
-            <th scope="col">Payment Date</th>
-            <th scope="col">Price Total</th>
-            <th scope="col">Manage</th>
-        </tr>
-    </thead>
-    <tbody id="orderTableBody">
-        @foreach (var item in Model.orders)
-        {
-            <tr id="viewRow_@item.OrderId">
-                <th scope="row">@item.OrderId</th>
-                <td>@item.StatusPayment</td>
-                <td>@item.StatusShipping</td>
-                <td>@item.Note</td>
-                <td>@item.OrderDate</td>
-                <td>@item.PaymentDate</td>
-                <td>@item.TotalAmount.ToString("#,##0.##") (đ)</td>
-                <td scope="row">
-                    <button id="edit" type="button" class="btn btn-secondary" onclick="editItem(@item.OrderId)">
-                        <i class="bi bi-pencil-square"></i> Sửa
-                    </button>
-                    <button id="delete" type="button" class="btn btn-danger" onclick="deleteItem(@item.OrderId)">
-                        <i class="bi bi-trash"></i> Xóa
-                    </button>
-                </td>
-            </tr>
-            <tr id="editRow_@item.OrderId" style="display:none;">
-                <th scope="row">@item.OrderId</th>
-                <td>
-                    <input type="text" id="statusPayment_@item.OrderId" value="@item.StatusPayment" class="form-control">
-                </td>
-                <td>
-                    <input type="text" id="statusShipping_@item.OrderId" value="@item.StatusShipping" class="form-control">
-                </td>
-                <td>
-                    <input type="text" id="note_@item.OrderId" value="@item.Note" class="form-control">
-                </td>
-                <td>
-                    <input type="text" id="orderDate_@item.OrderId" value="@item.OrderDate.ToString("yyyy-MM-dd")" class="form-control" disabled>
-                </td>
-                <td>
-                    <input type="text" id="paymentDate_@item.OrderId" value="@item.PaymentDate.ToString("yyyy-MM-dd")" class="form-control" disabled>
-                </td>
-                <td>
-                    <input type="text" value="@item.TotalAmount.ToString("#,##0.##")" class="form-control" disabled>
-                </td>
-                <td scope="col">
-                    <button type="button" id="save" class="btn btn-secondary" onclick="updateItem(@item.OrderId)">
-                        <i class="bi bi-save"></i> Lưu
-                    </button>
-                    <button type="button" id="cancel" class="btn btn-danger" onclick="cancelEdit(@item.OrderId)">
-                        <i class="bi bi-x-circle"></i> Hủy
-                    </button>
-                </td>
-            </tr>
-
-
+    <style>
+        .main-order {
+            display: grid;
+            gap: 10px; /* Khoảng cách giữa các phần tử trong grid */
         }
-    </tbody>
 
-</table>
+        .header-order ul {
+            display: flex;
+            gap: 20px; /* Khoảng cách giữa các mục trong danh sách */
+            list-style: none; /* Bỏ bullet của danh sách */
+            padding: 0; /* Xóa padding mặc định */
+            margin: 0; /* Xóa margin mặc định */
+            padding-left: 27px;
+        }
 
+            .header-order ul li a {
+                text-decoration: none; /* Bỏ gạch chân */
+                color: #333; /* Màu chữ */
+                font-size: 20px;
+            }
 
+                .header-order ul li a:hover {
+                    color: #007bff; /* Màu chữ khi hover */
+                }
 
+        .header-order hr {
+            border: none;
+            border-top: 1px solid #ddd; /* Đường gạch ngang mỏng */
+            margin-top: 10px;
+        }
+
+        .header-order ul li {
+            cursor: pointer;
+            padding: 5px 10px;
+            border-bottom: 2px solid transparent; /* Mặc định viền dưới trong suốt */
+            color: #333; /* Màu chữ mặc định */
+            transition: all 0.3s ease; /* Thêm hiệu ứng chuyển đổi */
+        }
+
+            .header-order ul li.active {
+                border-bottom: 2px solid #007bff;
+            }
+    </style>
+    <div class="main-order">
+        <div class="header-order">
+            <ul id="order-tabs">
+                <li><a href="#" onclick="loadPartial('TatCa', this)">Tất cả</a></li>
+                <li><a href="#" onclick="loadPartial('ChoXacNhan', this)">Chờ xác nhận</a></li>
+                <li><a href="#" onclick="loadPartial('DangGiao', this)">Đang giao</a></li>
+                <li><a href="#" onclick="loadPartial('DaGiao', this)">Đã giao</a></li>
+            </ul>
+            <hr />
+        </div>
+    </div>
+
+    <div id="partial-container">
+        <!-- Nội dung Partial View -->
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function loadPartial(partialName, element) {
+            $.ajax({
+                url: '@Url.Action("LoadPartial", "Order")',
+                type: 'GET',
+                data: { partialName: partialName },
+                success: function (data) {
+                    $('#partial-container').html(data);
+                    // Thêm lớp active vào phần tử được nhấn
+                    $('#order-tabs li').removeClass('active');
+                    $(element).parent().addClass('active');
+                },
+                error: function () {
+                    alert('Không thể tải nội dung');
+                }
+            });
+        }
+
+        function viewOrderDetails(orderId) {
+            window.location.href = '@Url.Action("OrderDetails", "Order")?orderId=' + orderId;
+        }
+    </script>

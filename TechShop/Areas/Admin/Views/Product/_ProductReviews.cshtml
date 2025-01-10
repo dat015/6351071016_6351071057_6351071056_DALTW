@@ -1,0 +1,29 @@
+﻿@model List<TechShop.Models.Review>
+
+    @if(Model == null || Model.Any()){
+        <h2>Chưa có đánh giá</h2>
+    }
+    else{
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Người đánh giá</th>
+                    <th>Số sao</th>
+                    <th>Bình luận</th>
+                    <th>Ngày đánh giá</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var review in Model)
+                {
+                    <tr>
+                        <td>@review.User.Email</td>
+                        <td>@review.Rating</td>
+                        <td>@review.Comment</td>
+                        <td>@review.ReviewDate.ToString("dd/MM/yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    }

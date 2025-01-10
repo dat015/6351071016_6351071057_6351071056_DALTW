@@ -1,5 +1,178 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    Layout = "_LayoutAdmin";
 }
+
+@model List<TechShop.Models.ODia>
+
+<style>
+    .hide {
+        display: none !important;
+    }
+</style>
+
+<div class="p-3">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#oDiaModal">
+        <i class="bi bi-plus-circle-fill"></i> Thêm mới ổ đĩa
+    </button>
+</div>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Tên ổ đĩa</th>
+            <th>Giá</th>
+            <th>Quản lý</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var oDia in Model)
+        {
+            <tr id="row-display-@oDia.ODiaId">
+                <td>@oDia.ODiaId</td>
+                <td>@oDia.TenODia</td>
+                <td>@oDia.AdditionalPrice.ToString("N0")</td>
+                <td>
+                    <button onclick="Edit(@oDia.ODiaId)" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil-square"></i> Sửa
+                    </button>
+                    <button onclick="deleteODia(@oDia.ODiaId)" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash"></i> Xóa
+                    </button>
+                </td>
+            </tr>
+            <tr id="row-edit-@oDia.ODiaId" class="hide">
+                <td>@oDia.ODiaId</td>
+                <td><input type="text" value="@oDia.TenODia" class="form-control" /></td>
+                <td><input type="number" value="@oDia.AdditionalPrice" class="form-control" /></td>
+                <td>
+                    <button onclick="saveODia(@oDia.ODiaId)" class="btn btn-primary btn-sm">
+                        <i class="bi bi-check-circle"></i> Lưu
+                    </button>
+                    <button onclick="CancelEdit(@oDia.ODiaId)" class="btn btn-warning btn-sm">
+                        <i class="bi bi-x-circle"></i> Hủy
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal thêm mới ổ đĩa -->
+<div class="modal fade" id="oDiaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm mới ổ đĩa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addODiaForm">
+                    <div class="mb-3">
+                        <label for="TenODia" class="form-label">Tên ổ đĩa</label>
+                        <input type="text" class="form-control" id="TenODia" placeholder="Nhập tên ổ đĩa" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Gia" class="form-label">Giá</label>
+                        <input type="number" class="form-control" id="Gia" placeholder="Nhập giá" />
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="addODia()">Thêm mới</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    
+
+    function saveODia(id) {
+        const rowEdit = document.getElementById(`row-edit-${id}`);
+        const tenODia = rowEdit ? rowEdit.querySelector('input[type="text"]').value : null;
+        const gia = rowEdit ? rowEdit.querySelector('input[type="number"]').value : null;
+
+        if (tenODia !== null && gia !== null) {
+            $.post('/Admin/Config/UpdateODia', { id, tenODia, additionalPrice: gia }, function (response) {
+                if (response.success) {
+                    alert('Cập nhật thành công!');
+                    const rowDisplay = document.getElementById(`row-display-${id}`);
+                    if (rowDisplay) {
+                        rowDisplay.querySelector('td:nth-child(2)').textContent = tenODia;
+                        rowDisplay.querySelector('td:nth-child(3)').textContent = parseInt(gia).toLocaleString();
+                    }
+                    CancelEdit(id);
+                } else {
+                    alert('Lỗi: ' + response.message);
+                }
+            }).fail(() => alert('Đã xảy ra lỗi!'));
+        }
+    }
+
+        function deleteODia(id) {
+        if (confirm('Bạn có chắc chắn muốn xóa ổ đĩa này?')) {
+            $.post('/Admin/Config/DeleteODia', { id }, function (response) {
+                if (response.success) {
+                    alert('Xóa thành công!');
+                    const rowDisplay = document.getElementById(`row-display-${id}`);
+                    const rowEdit = document.getElementById(`row-edit-${id}`);
+                    // Ensure both rows are removed
+                    if (rowDisplay) rowDisplay.remove();
+                    if (rowEdit) rowEdit.remove();
+                } else {
+                    alert('Lỗi: ' + response.message);
+                }
+            }).fail(() => alert('Đã xảy ra lỗi!'));
+        }
+    }
+
+    function addODia() {
+        const tenODia = $('#TenODia').val();
+        const gia = $('#Gia').val();
+
+        if (!tenODia || !gia) {
+            alert('Vui lòng nhập đầy đủ thông tin!');
+            return;
+        }
+
+        $.post('/Admin/Config/AddODia', { tenODia, additionalPrice: gia }, function (response) {
+            if (response.success) {
+                alert('Thêm mới thành công!');
+                $('#oDiaModal').modal('hide');
+
+                const newODia = `
+                    <tr id="row-display-${response.data.oDiaId}">
+                        <td>${response.data.oDiaId}</td>
+                        <td>${response.data.tenODia}</td>
+                        <td>${parseInt(response.data.additionalPrice).toLocaleString()}</td>
+                        <td>
+                            <button onclick="Edit(${response.data.oDiaId})" class="btn btn-warning btn-sm">
+                                <i class="bi bi-pencil-square"></i> Sửa
+                            </button>
+                            <button onclick="deleteODia(${response.data.oDiaId})" class="btn btn-danger btn-sm">
+                                <i class="bi bi-trash"></i> Xóa
+                            </button>
+                        </td>
+                    </tr>
+                    <tr id="row-edit-${response.data.oDiaId}" class="hide">
+                        <td>${response.data.oDiaId}</td>
+                        <td><input type="text" value="${response.data.tenODia}" class="form-control" /></td>
+                        <td><input type="number" value="${response.data.additionalPrice}" class="form-control" /></td>
+                        <td>
+                            <button onclick="saveODia(${response.data.oDiaId})" class="btn btn-primary btn-sm">
+                                <i class="bi bi-check-circle"></i> Lưu
+                            </button>
+                            <button onclick="CancelEdit(${response.data.oDiaId})" class="btn btn-warning btn-sm">
+                                <i class="bi bi-x-circle"></i> Hủy
+                            </button>
+                        </td>
+                    </tr>`;
+
+                $('tbody').append(newODia);
+            } else {
+                alert('Lỗi: ' + response.message);
+            }
+        }).fail(() => alert('Đã xảy ra lỗi!'));
+    }
+</script>

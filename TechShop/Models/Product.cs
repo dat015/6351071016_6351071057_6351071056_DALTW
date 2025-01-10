@@ -22,6 +22,7 @@ namespace TechShop.Models
         public string Description { get; set; }
         public string Img { get; set; }
         [ForeignKey("CategoryId")]
+        public bool IsHide { get; set; } = false;
         public int CategoryId { get; set; }
         public int BrandId { get; set; }
         public int warranty { get; set; }
