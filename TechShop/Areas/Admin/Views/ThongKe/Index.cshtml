@@ -5,12 +5,10 @@
     .hide {
         display: none !important;
     }
-
     .main-order {
         display: grid;
         gap: 10px; /* Khoảng cách giữa các phần tử trong grid */
     }
-
     .header-order ul {
         display: flex;
         gap: 20px; /* Khoảng cách giữa các mục trong danh sách */
@@ -19,23 +17,19 @@
         margin: 0; /* Xóa margin mặc định */
         padding-left: 27px;
     }
-
-        .header-order ul li a {
-            text-decoration: none; /* Bỏ gạch chân */
-            color: #333; /* Màu chữ */
-            font-size: 20px;
-        }
-
-            .header-order ul li a:hover {
-                color: #007bff; /* Màu chữ khi hover */
-            }
-
+    .header-order ul li a {
+        text-decoration: none; /* Bỏ gạch chân */
+        color: #333; /* Màu chữ */
+        font-size: 20px;
+    }
+    .header-order ul li a:hover {
+        color: #007bff; /* Màu chữ khi hover */
+    }
     .header-order hr {
         border: none;
         border-top: 1px solid #ddd; /* Đường gạch ngang mỏng */
         margin-top: 10px;
     }
-
     .header-order ul li {
         cursor: pointer;
         padding: 5px 10px;
@@ -43,10 +37,9 @@
         color: #333; /* Màu chữ mặc định */
         transition: all 0.3s ease; /* Thêm hiệu ứng chuyển đổi */
     }
-
-        .header-order ul li.active {
-            border-bottom: 2px solid #007bff;
-        }
+    .header-order ul li.active {
+        border-bottom: 2px solid #007bff;
+    }
 </style>
 <div class="container-fluid" style="padding-bottom: 30px; padding-top: 20px;">
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalCenter">
@@ -134,7 +127,7 @@
         // Hàm AJAX để tải nội dung từ server
         function loadContent(type) {
             $.ajax({
-                url: `/Admin/Admin/LoadPartial?type=${type}`, // Thay URL phù hợp với controller
+                url: `/Admin/ThongKe/LoadPartial?type=${type}`, // Thay URL phù hợp với controller
                 method: 'GET',
                 beforeSend: function () {
                     // Hiển thị thông báo đang tải (loading)

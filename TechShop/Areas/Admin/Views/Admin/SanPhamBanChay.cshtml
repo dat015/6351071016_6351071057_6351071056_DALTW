@@ -1,0 +1,63 @@
+﻿<div class="container">
+    <canvas id="bestSellingChart"></canvas>
+</div>
+<script>
+
+    async function fetchAndRenderBestSellingChart() {
+      try {
+        // Gọi API để lấy dữ liệu
+        const response = await fetch('/Admin/Admin/BestSellingProducts'); // Thay đổi URL nếu cần
+        const result = await response.json();
+
+        // Log dữ liệu trả về để kiểm tra
+        console.log("Dữ liệu trả về từ API:", result);
+
+        // Kiểm tra và xử lý dữ liệu trả về
+        if (!result.values || !result.values.$values || !Array.isArray(result.values.$values)) {
+          throw new Error("Dữ liệu trả về không hợp lệ");
+        }
+
+        // Trích xuất dữ liệu từ $values
+        const values = result.values.$values;
+
+        // Chuẩn bị dữ liệu cho biểu đồ
+        const labels = values.map(item => item.productName); // Tên sản phẩm
+        const data = values.map(item => item.totalSold); // Số lượng bán được
+
+        // Cấu hình biểu đồ
+        const bestSellingChart = new Chart(document.getElementById('bestSellingChart').getContext('2d'), {
+          type: 'bar', // Kiểu biểu đồ
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Số lượng bán',
+              data: data,
+              backgroundColor: 'rgba(54, 162, 235, 0.6)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              title: {
+                display: true,
+                text: 'Top 12 Sản phẩm bán chạy nhất'
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu hoặc vẽ biểu đồ:", error);
+      }
+    }
+
+    // Gọi hàm khi trang được tải
+    fetchAndRenderBestSellingChart();
+
+</script>

@@ -1,0 +1,90 @@
+﻿<div class="container">
+    <canvas id="myChart"></canvas>
+</div>
+
+<script>
+    // Gọi API và hiển thị dữ liệu lên biểu đồ
+     async function fetchAndRenderChart() {
+      try {
+        // Gọi API để lấy dữ liệu
+        const response = await fetch('/Admin/Admin/Statistic_TheoVung'); // Thay đổi URL nếu cần
+        const result = await response.json();
+
+        // Log dữ liệu trả về để kiểm tra
+        console.log("Dữ liệu trả về từ API:", result);
+
+        // Kiểm tra và xử lý dữ liệu trả về
+        if (!result.values || !result.values.$values || !Array.isArray(result.values.$values)) {
+          throw new Error("Dữ liệu trả về không hợp lệ");
+        }
+
+        // Trích xuất dữ liệu từ $values
+        const values = result.values.$values;
+
+        // Chuẩn bị dữ liệu cho biểu đồ
+        const labels = values.map(item => item.date); // Danh sách các tháng
+        const data = values.map(item => item.totalAmount); // Tổng số tiền theo tháng
+
+        // Cấu hình biểu đồ
+        const myChart = new Chart(document.getElementById('myChart').getContext('2d'), {
+          type: 'bar', // Kiểu biểu đồ
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Tổng doanh thu (VNĐ)',
+              data: data,
+              backgroundColor: [
+                'rgba(75, 192, 192, 0.6)',
+                'rgba(54, 162, 235, 0.6)',
+                'rgba(255, 206, 86, 0.6)',
+                'rgba(153, 102, 255, 0.6)',
+                'rgba(255, 99, 132, 0.6)',
+                'rgba(255, 159, 64, 0.6)',
+                'rgba(199, 199, 199, 0.6)',
+                'rgba(255, 205, 86, 0.6)',
+                'rgba(75, 192, 192, 0.6)',
+                'rgba(54, 162, 235, 0.6)',
+                'rgba(255, 99, 132, 0.6)',
+                'rgba(153, 102, 255, 0.6)'
+              ],
+              borderColor: '#777',
+              borderWidth: 1,
+              hoverBorderWidth: 3,
+              hoverBorderColor: '#000'
+            }]
+          },
+          options: {
+            title: {
+              display: true,
+              text: 'Doanh thu theo tháng',
+              fontSize: 25
+            },
+            legend: {
+              display: true,
+              position: 'right',
+              labels: {
+                fontColor: '#000'
+              }
+            },
+            layout: {
+              padding: {
+                left: 50,
+                right: 0,
+                bottom: 0,
+                top: 0
+              }
+            },
+            tooltips: {
+              enabled: true
+            }
+          }
+        });
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu hoặc vẽ biểu đồ:", error);
+      }
+    }
+
+    // Gọi hàm khi trang được tải
+    fetchAndRenderChart();
+
+</script>

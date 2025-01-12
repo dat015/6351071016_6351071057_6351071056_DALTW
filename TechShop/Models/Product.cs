@@ -22,8 +22,9 @@ namespace TechShop.Models
         public string Description { get; set; }
         public string Img { get; set; }
         [ForeignKey("CategoryId")]
-        public bool IsHide { get; set; } = false;
         public int CategoryId { get; set; }
+        public bool IsHide { get; set; } = false;
+
         public int BrandId { get; set; }
         public int warranty { get; set; }
         
@@ -34,6 +35,7 @@ namespace TechShop.Models
         public IFormFile? ImageUpLoad { get; set; }
         public ICollection<CauHinh> CauHinhProducts { get; set; }
         public ICollection<Specs> Specifications { get; set; }
+        public ICollection<Review> reviews { get; set; }
 
     }
 }

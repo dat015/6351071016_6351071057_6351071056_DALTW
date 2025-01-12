@@ -1,0 +1,72 @@
+﻿<div class="container">
+    <canvas id="topRatedChart"></canvas>
+</div>
+
+<script>
+    async function fetchAndRenderTopRatedChart() {
+        try {
+            // Gọi API để lấy dữ liệu
+            const response = await fetch('/Admin/Admin/TopRatedProducts'); // URL cần thay đổi nếu cần
+            const result = await response.json();
+
+            // Log dữ liệu trả về để kiểm tra
+            console.log("Dữ liệu trả về từ API:", result);
+
+            // Kiểm tra và xử lý dữ liệu trả về từ result.values.$values
+            if (!result.values || !result.values.$values || !Array.isArray(result.values.$values)) {
+                throw new Error("Dữ liệu trả về không hợp lệ");
+            }
+
+            // Trích xuất dữ liệu từ result.values.$values
+            const values = result.values.$values;
+
+            // Chuẩn bị dữ liệu cho biểu đồ
+            const labels = values.map(item => item.productName); // Tên sản phẩm
+            const averageRatings = values.map(item => item.averageRating); // Số sao trung bình
+            const totalReviews = values.map(item => item.totalReviews); // Số lượt đánh giá
+
+            // Cấu hình biểu đồ
+            const topRatedChart = new Chart(document.getElementById('topRatedChart').getContext('2d'), {
+                type: 'bar', // Kiểu biểu đồ
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Số sao trung bình',
+                            data: averageRatings,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)', // Màu cho cột số sao trung bình
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Số lượt đánh giá',
+                            data: totalReviews,
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)', // Màu cho cột số lượt đánh giá
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Top 12 Sản phẩm đánh giá cao nhất'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu hoặc vẽ biểu đồ:", error);
+        }
+    }
+
+    // Gọi hàm khi trang được tải
+    fetchAndRenderTopRatedChart();
+</script>

@@ -327,7 +327,8 @@ namespace TechShop.Areas.Customer.Controllers
                             new Claim(ClaimTypes.Email, customer.Email),
                             new Claim(ClaimTypes.Name, customer.Name),
                             new Claim(ClaimTypes.NameIdentifier, customer.Id.ToString()),
-                            new Claim(ClaimTypes.Role, role.roleName)
+                            new Claim(ClaimTypes.Role, role.roleName),
+                            new Claim(ClaimTypes.OtherPhone, customer.Image)
                         };
                         var claimIdentity = new ClaimsIdentity(claims, "ApplicationCookie");// danh tính người dùng qua 1 tập hợp các claim được liên kết với quá trình đăng nhập
                         var claimsPrincipal = new ClaimsPrincipal(claimIdentity);

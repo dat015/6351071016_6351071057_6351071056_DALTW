@@ -49,6 +49,7 @@ namespace TechShop.Controllers
             List<Category> list_cate = await _db.Categories.ToListAsync();
             List<Product> list_product = await _db.Products
                 .Include(p => p.Specifications)
+                .Where(p => p.IsHide == false)
                 .ToListAsync();
             List<Role> roles = await _db.Roles.ToListAsync();
             foreach (var item in roles)
@@ -62,7 +63,7 @@ namespace TechShop.Controllers
 
         public IActionResult ProductByCategory(int idCate)
         {
-            List<Product> list_product = _db.Products.Where(x => x.CategoryId == idCate).OrderBy(x => x.ProductName).ToList();
+            List<Product> list_product = _db.Products.Where(x => x.CategoryId == idCate && x.IsHide == false).OrderBy(x => x.ProductName).ToList();
             return View(list_product);
         }
 
@@ -82,7 +83,9 @@ namespace TechShop.Controllers
    )
         {
             // Lấy danh sách sản phẩm
-            var products = _db.Products.AsQueryable();
+            var products = _db.Products
+                .Where(p => p.IsHide == false)
+                .AsQueryable();
             var specs = _db.specs
                 .Include(p => p.Product)
                 .Include(p => p.Config)

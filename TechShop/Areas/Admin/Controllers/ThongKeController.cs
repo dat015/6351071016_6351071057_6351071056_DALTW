@@ -1,24 +1,26 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ShoeWeb.Areas.Admin.Admin_ViewModel;
+﻿using Microsoft.AspNetCore.Mvc;
 using Spire.Doc;
+using System.Diagnostics;
 using TechShop.Data;
-using TechShop.Helper;
-using TechShop.Models;
-using TechShop.Utility;
+using TechShop.Areas.Admin.Models;
+using ShoeWeb.Areas.Admin.Admin_ViewModel;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using Humanizer;
 
 namespace TechShop.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "Admin")]
 
-    public class AdminController : Controller
+    public class ThongKeController : Controller
     {
         private readonly ApplicationDbContext _db;
         private readonly IWebHostEnvironment _env;
 
-        public AdminController(ApplicationDbContext db, IWebHostEnvironment env)
+        public ThongKeController(ApplicationDbContext db, IWebHostEnvironment env)
         {
             _db = db;
             _env = env;
@@ -217,7 +219,7 @@ namespace TechShop.Areas.Admin.Controllers
         public async Task<IActionResult> ExportRevenueToPDF(DateTime fromDate, DateTime toDate)
         {
             var orders = _db.Orders
-                .Where(o => o.OrderDate >= fromDate && o.OrderDate <= toDate && o.StatusShipping == "2")
+                .Where(o => o.OrderDate >= fromDate && o.OrderDate <= toDate  && o.StatusShipping == "2")
                 .Select(o => new
                 {
                     o.OrderId,
@@ -309,5 +311,6 @@ namespace TechShop.Areas.Admin.Controllers
             var fileName = Path.GetFileName(pathExportPdf);
             return File(fileBytes, "application/pdf", fileName);
         }
+
     }
 }

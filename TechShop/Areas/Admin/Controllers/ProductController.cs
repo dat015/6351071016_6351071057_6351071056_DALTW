@@ -34,6 +34,7 @@ namespace TechShop.Areas.Admin.Controllers
                 Products = new Lazy<Task<List<Product>>>(() => _db.Products
                                                                     .Include(Brand => Brand.BrandOfProducts)
                                                                     .Include(Category => Category.CategoryOfProducts)
+                                                                    .Where(p => p.IsHide == false)
                                                                     .ToListAsync()),
                 Cate = new Lazy<Task<List<Category>>>(() => _db.Categories.ToListAsync()),
                 CPUs = new Lazy<Task<List<CPU>>>(() => _db.CPUs.ToListAsync()),
@@ -384,7 +385,7 @@ namespace TechShop.Areas.Admin.Controllers
                 {
                     return Json(new { success = false, message = "Sản phẩm không tồn tại." });
                 }
-                _db.Products.Remove(product);
+                product.IsHide = true;
                 await _db.SaveChangesAsync();
 
 

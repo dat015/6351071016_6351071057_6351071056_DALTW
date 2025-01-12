@@ -12,6 +12,8 @@ namespace TechShop.Models
         public int specId { get; set; }
         [ForeignKey("specId")]
         public Specs Specs { get; set; }
+        public bool Reviewed { get; set; }
+
         public int OrderId { get; set; }
         [Required]
         [ForeignKey("OrderId")]
