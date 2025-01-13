@@ -313,28 +313,30 @@
                     if (response.message) {
                         alert(response.message);
                           var newSpec = response.newSpec; // Phản hồi từ server (giả định rằng đây là đối tượng spec mới)
+                          console.log(response.newSpec);
+                          var priceFormatted = (newSpec.Price && !isNaN(newSpec.Price)) ? newSpec.Price.toString("#,##0.##") : "Chưa có giá";
 
                     // Tạo một dòng mới trong bảng và thêm vào tbody
                     var newRow = `
-                        <tr class="display-row" id="${newSpec.Id}">
-                            <td>${newSpec.Price.toString("#,##0.##")}đ</td>
-                            <td>${newSpec.Config?.CPU?.TenCPU || "Chưa có CPU"}</td>
-                            <td>${newSpec.Config?.RAM?.DungLuong || "Chưa có RAM"}</td>
-                            <td>${newSpec.Config?.CardDoHoa?.TenCardDoHoa || "Chưa có VGA"}</td>
-                            <td>${newSpec.Config?.ODia?.TenODia || "Chưa có ổ đĩa"}</td>
-                            <td>${newSpec.Config?.ManHinh?.KichThuocManHinh || "Chưa có màn hình"}</td>
-                            <td>${newSpec.Config?.Pin?.DungLuongPin || "Chưa có pin"}</td>
-                            <td>${newSpec.Config?.TrongLuong?.SoKg || "Chưa có trọng lượng"}</td>
-                            <td style="display: flex;">
-                                <button class="btn btn-warning btn-sm mt-3 edit-btn">
-                                    <i class="bi bi-pencil-square"></i> Sửa
-                                </button>
-                                <button class="btn btn-danger btn-sm mt-3 confirmDeletion" onclick="DeleteSpec(${newSpec.Id})">
-                                    <i class="bi bi-trash"></i> Xóa
-                                </button>
-                            </td>
-                        </tr>
-                    `;
+            <tr class="display-row" id="${newSpec.Id}">
+                <td>${newSpec.price}đ</td>
+                <td>${newSpec.config?.cpu?.tenCPU || "Chưa có CPU"}</td>
+                <td>${newSpec.config?.ram?.dungLuong || "Chưa có RAM"}</td>
+                <td>${newSpec.config?.cardDoHoa?.tenCardDoHoa || "Chưa có VGA"}</td>
+                <td>${newSpec.config?.oDia?.tenODia || "Chưa có ổ đĩa"}</td>
+                <td>${newSpec.config?.manHinh?.kichThuocManHinh || "Chưa có màn hình"}</td>
+                <td>${newSpec.config?.pin?.dungLuongPin || "Chưa có pin"}</td>
+                <td>${newSpec.config?.trongLuong?.soKg || "Chưa có trọng lượng"}</td>
+                <td style="display: flex;">
+                    <button class="btn btn-warning btn-sm mt-3 edit-btn">
+                        <i class="bi bi-pencil-square"></i> Sửa
+                    </button>
+                    <button class="btn btn-danger btn-sm mt-3 confirmDeletion" onclick="DeleteSpec(${newSpec.Id})">
+                        <i class="bi bi-trash"></i> Xóa
+                    </button>
+                </td>
+            </tr>
+        `;
                     // Thêm dòng mới vào bảng
                     $('#table_Product tbody').append(newRow);
 

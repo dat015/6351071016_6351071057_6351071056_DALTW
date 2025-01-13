@@ -41,7 +41,11 @@ namespace TechShop.Areas.Customer.Controllers
                 return null;
             }
         }
-
+        [HttpGet]
+        public IActionResult Success()
+        {
+            return View();
+        }
         [HttpGet]
         public async Task<ActionResult> Index(int cartId)
         {
@@ -107,7 +111,7 @@ namespace TechShop.Areas.Customer.Controllers
             {
                 UserId = (int)userId,  // Kiểm tra kiểu của userId, cần ép kiểu đúng
                 StatusPayment = SD.PaymentStatusPending,  // Kiểm tra giá trị SD.PaymentStatusPending có hợp lệ không
-                StatusShipping = "Await",  // Nếu không có giá trị thì có thể để null, nhưng bạn đã gán chuỗi "Await"
+                StatusShipping = "0",  // Nếu không có giá trị thì có thể để null
                 isAccept = false,  // Cái này đã có giá trị mặc định là false
                 TotalAmount = cartDetails.Sum(pr => pr.price * pr.quantity),  // Kiểm tra nếu cartDetails không null
                 OrderDate = DateTime.Now,  // Đảm bảo gán đúng ngày giờ hiện tại

@@ -46,13 +46,13 @@ namespace TechShop.Areas.Admin.Controllers
                 case "TatCa":
                     return PartialView("_TatCaPartial",orders);
                 case "ChoXacNhan":
-                    orders = orders.Where(o => o.isAccept == false).ToList();
+                    orders = orders.Where(o => o.isAccept == false && o.StatusShipping == "0").ToList();
                     return PartialView("_ChoXacNhanPartial",orders);
                 case "DangGiao":
-                    orders = orders.Where(o => o.isAccept == true).ToList();
+                    orders = orders.Where(o => o.isAccept == true && o.StatusShipping == "1").ToList();
                     return PartialView("_DangGiaoPartial",orders);
                 case "DaGiao":
-                    orders = orders.Where(o => o.StatusShipping == "2").ToList();
+                    orders = orders.Where(o => o.StatusShipping == "2" && o.isAccept == true).ToList();
                     return PartialView("_DaGiaoPartial",orders);
                 default:
                     return PartialView("_TatCaPartial",orders);
@@ -69,6 +69,7 @@ namespace TechShop.Areas.Admin.Controllers
             }
 
             order.isAccept = true;
+            order.StatusShipping = "1";
             _db.Orders.Update(order);
             await _db.SaveChangesAsync();
 

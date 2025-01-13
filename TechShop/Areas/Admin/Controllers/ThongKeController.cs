@@ -38,6 +38,7 @@ namespace TechShop.Areas.Admin.Controllers
             {
                 var orders = await _db.DetailsOrders
                     .Include(o => o.Specs.Product) // Bao gồm thông tin sản phẩm từ bảng liên kết
+                    .Where(o => o.order.StatusShipping == "2")
                     .GroupBy(o => o.Specs.ProductId) // Nhóm theo ProductId
                     .Select(g => new
                     {
@@ -47,6 +48,7 @@ namespace TechShop.Areas.Admin.Controllers
                     })
                     .OrderByDescending(g => g.TotalSold) // Sắp xếp theo số lượng bán giảm dần
                     .Take(12) // Lấy 12 sản phẩm bán nhiều nhất
+                    
                     .ToListAsync();
 
                 return Json(new { values = orders });
@@ -219,7 +221,7 @@ namespace TechShop.Areas.Admin.Controllers
         public async Task<IActionResult> ExportRevenueToPDF(DateTime fromDate, DateTime toDate)
         {
             var orders = _db.Orders
-                .Where(o => o.OrderDate >= fromDate && o.OrderDate <= toDate  && o.StatusShipping == "2")
+                .Where(o => o.OrderDate >= fromDate && o.OrderDate <= toDate  && o.StatusShipping == "2" )
                 .Select(o => new
                 {
                     o.OrderId,
@@ -229,6 +231,7 @@ namespace TechShop.Areas.Admin.Controllers
                     CustomerPhone = o.phoneNumber,
                     Products = o.orderDetails.Select(od => new
                     {
+                       
                         Name = od.Specs.Product.ProductName,
                         Quantity = od.Quantity,
                         Price = od.Specs.Price,
@@ -260,14 +263,17 @@ namespace TechShop.Areas.Admin.Controllers
 
             // Tạo dữ liệu cho bảng sản phẩm
             var productDetails = orders.SelectMany(o => o.Products)
-                                       .GroupBy(p => p.Name)
-                                       .Select(g => new
-                                       {
-                                           ProductName = g.Key,
-                                           ProductQuantity = g.Sum(p => p.Quantity),
-                                           ProductPrice = g.First().Price,
-                                           ProductUnitPrice = g.Sum(p => p.Quantity * p.UnitPrice)
-                                       }).ToList();
+                 .GroupBy(p => p.Name)
+                 .Select(g => new
+                 {
+                     ProductName = g.Key,
+                     ProductQuantity = g.Sum(p => p.Quantity),
+                     ProductPrice = g.First().Price,
+                     ProductUnitPrice = g.Sum(p => p.Quantity) * g.First().Price
+                 })
+                 .OrderByDescending(p => p.ProductQuantity) // Sắp xếp giảm dần theo ProductQuantity
+                 .ToList();
+
 
             // Lấy bảng đầu tiên trong tài liệu
             Spire.Doc.Table table = (Spire.Doc.Table)document.Sections[0].Tables[0];

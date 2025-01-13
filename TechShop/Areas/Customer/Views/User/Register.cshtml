@@ -19,14 +19,14 @@
 
                 <div class="row align-items-center">
                     <div class="header-text mb-4 text-center">
-                        <h2>SIGN UP</h2>
+                        <h2>Đăng ký</h2>
                     </div>
                     <div class="input-group mb-3">
-                        <input asp-for="Email" type="email" class="form-control form-control-lg bg-light fs-6" placeholder="Email address"  id="email" />
+                        <input asp-for="Email" type="email" class="form-control form-control-lg bg-light fs-6" placeholder="Email address"  id="email" required/>
                     </div>
 
                     <div class="input-group mb-3">
-                        <input asp-for="Password" type="password" class="form-control form-control-lg bg-light fs-6" placeholder="Password" id="password" />
+                        <input asp-for="Password" type="password" class="form-control form-control-lg bg-light fs-6" placeholder="Password" id="password" required/>
                     </div>
                     <div class="input-group mb-3">
                         <input type="password" class="form-control form-control-lg bg-light fs-6" placeholder="Confirm Password" name="confirmPassword" id="confirmPassword" />
@@ -38,25 +38,25 @@
                     </div>
 
                     <div class="input-group mb-3">
-                        <input asp-for="Address" type="text" class="form-control form-control-lg bg-light fs-6" placeholder="Address" id="address" />
+                        <input asp-for="Address" type="text" class="form-control form-control-lg bg-light fs-6" placeholder="Address" id="address" required/>
                     </div>
 
                     <div class="input-group mb-3">
-                        <input asp-for="PhoneNumber" type="text" class="form-control form-control-lg bg-light fs-6" placeholder="Phone Number" id="phoneNumber" />
+                        <input asp-for="PhoneNumber" type="text" class="form-control form-control-lg bg-light fs-6" placeholder="Phone Number" id="phoneNumber" required/>
                     </div>
 
                 </div>
                 <div class="input-group mb-3">
-                    <button type="submit" class="btn btn-lg btn-primary w-100 fs-6">Sign Up</button>
+                    <button type="submit" class="btn btn-lg btn-primary w-100 fs-6">Đăng ký</button>
                 </div>
-                <div class="input-group mb-3">
+            @*     <div class="input-group mb-3">
                     <button type="button" class="btn btn-lg btn-light w-100 fs-6">
                         <i class="bi bi-google me-2" style="width:25px;"></i>
                         <small>Sign Up with Google</small>
                     </button>
-                </div>
+                </div> *@
                 <div class="row">
-                    <small>You have an account? <a href="#">Login</a></small>
+                    <small>Bạn đã có tài khoản? <a asp-action="Login" asp-controller="User" asp-area="Customer">Login</a></small>
                 </div>
             </form>
 

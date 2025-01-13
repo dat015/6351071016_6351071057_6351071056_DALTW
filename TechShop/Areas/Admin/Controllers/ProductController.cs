@@ -89,31 +89,12 @@ namespace TechShop.Areas.Admin.Controllers
                     return RedirectToAction("Create");
                 }
 
-                if (product.ImageUpLoad != null)
+
+                if (product.ImageUpLoad != null && product.ImageUpLoad.Length > 0)
                 {
-                    try
-                    {
-                        string uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/products");
-                        if (!Directory.Exists(uploadDir))
-                        {
-                            Directory.CreateDirectory(uploadDir);
-                        }
-                        string imgName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(product.ImageUpLoad.FileName);
-                        string filePath = Path.Combine(uploadDir, imgName);
-
-                        using (var fs = new FileStream(filePath, FileMode.Create))
-                        {
-                            await product.ImageUpLoad.CopyToAsync(fs);
-                        }
-                        product.Img = imgName;
-                    }
-                    catch (Exception ex)
-                    {
-                        TempData["error"] = "Lỗi khi lưu ảnh: " + ex.Message;
-                        return RedirectToAction("Create");
-                    }
+                    var uniqueFileName = await UploadImage(product, product.ImageUpLoad);
+                    product.Img = uniqueFileName;
                 }
-
                 _db.Products.Add(product);
                 await _db.SaveChangesAsync();
                 TempData["success"] = "Tạo thành công sản phẩm";
