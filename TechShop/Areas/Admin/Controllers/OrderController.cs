@@ -68,6 +68,16 @@ namespace TechShop.Areas.Admin.Controllers
                 return NotFound();
             }
 
+            var orderItems = await _db.DetailsOrders
+                .Include(o => o.Specs)
+                .Where(o => o.OrderId == order.OrderId).ToListAsync();
+            foreach(var item in orderItems)
+            {
+                var product = await _db.Products.FindAsync(item.Specs.ProductId);
+                product.StockQuantity -= item.Quantity;
+                await _db.SaveChangesAsync();
+            }
+
             order.isAccept = true;
             order.StatusShipping = "1";
             _db.Orders.Update(order);

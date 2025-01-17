@@ -151,8 +151,10 @@ namespace TechShop.Areas.Customer.Controllers
             if (cartDetails == null) return false;
 
             var orderDetails = new List<OrderDetail>();
+            
             foreach (var item in cartDetails)
             {
+               
                 var orderDetail = new OrderDetail()
                 {
 
